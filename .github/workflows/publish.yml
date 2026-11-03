@@ -33,19 +33,19 @@ jobs:
                   uv run --frozen --no-sync mkdocs build -d ./bcml/assets/help
             - name: Patch roead version
               run: sed -i 's/<0.10.4/0.10.4/g' Cargo.toml
-            - uses: actions-rs/toolchain@v1
-              name: Install Rust
-              with:
-                profile: minimal
-                toolchain: nightly
-                override: true
+            - name: Install pinned Rust toolchain
+              id: rust
+              shell: bash
+              run: |
+                rustup show active-toolchain
+                echo "channel=$(rustup show active-toolchain | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
             - uses: messense/maturin-action@v1
               name: Publish with Maturin
               with:
                 maturin-version: v0.12.20
                 command: publish
-                args: --no-sdist -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }} --skip-existing
-                rust-toolchain: nightly
+                args: --cargo-extra-args=--locked --no-sdist -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }} --skip-existing
+                rust-toolchain: ${{ steps.rust.outputs.channel }}
     deploy_windows:
         runs-on: windows-2019
         steps:
@@ -81,12 +81,12 @@ jobs:
             - name: Build docs
               run: |
                   uv run --frozen --no-sync mkdocs build -d .\bcml\assets\help
-            - uses: actions-rs/toolchain@v1
-              name: Install Rust
-              with:
-                profile: minimal
-                toolchain: nightly
-                override: true
+            - name: Install pinned Rust toolchain
+              id: rust
+              shell: bash
+              run: |
+                rustup show active-toolchain
+                echo "channel=$(rustup show active-toolchain | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
             - name: Publish with Maturin
               run: |
-                  uv run --frozen --no-sync maturin publish -f --no-sdist -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }} --skip-existing
+                  uv run --frozen --no-sync maturin publish -f --cargo-extra-args=--locked --no-sdist -u ${{ secrets.PYPI_USERNAME }} -p ${{ secrets.PYPI_PASSWORD }} --skip-existing

@@ -197,7 +197,7 @@ test.py
 /act
 /test
 tmp.*
-Cargo.lock
+# Cargo.lock 纳入版本控制，固定与旧版 Rust 工具链兼容的依赖。
 # bundle.js
 
 

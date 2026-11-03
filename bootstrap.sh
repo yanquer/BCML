@@ -18,8 +18,8 @@ if [ "$(node -p 'Number(process.versions.node.split(".")[0])')" -lt 14 ]; then
     exit 1
 fi
 
-if ! command -v cargo >/dev/null 2>&1; then
-    echo "Rust 1.60+ (nightly) is required to build BCML" >&2
+if ! command -v rustup >/dev/null 2>&1; then
+    echo "rustup is required to install the project's pinned Rust toolchain: https://rustup.rs/" >&2
     exit 1
 fi
 

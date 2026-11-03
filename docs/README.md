@@ -103,7 +103,7 @@ to launch BCML in the future
 Building from source requires, in addition to the general prerequisites:
 
 -   [uv](https://docs.astral.sh/uv/getting-started/installation/)
--   Rust 1.60+ (nightly)
+-   [rustup](https://rustup.rs/) (the build installs the pinned Rust toolchain automatically)
 -   Node.js v14+
 
 Run the following commands from the repository root. uv selects Python 3.9 from
@@ -149,8 +149,17 @@ uv development commands require Python 3.8–3.10.
     uv build --wheel
     ```
 
-    For an optimized development extension, run
-    `uv run --locked maturin develop --release`. Maturin remains the Rust build backend.
+    Maturin remains the Rust compiler integration. The local build backend selects
+    the toolchain from [rust-toolchain.toml](../rust-toolchain.toml), installs it
+    through rustup if missing, and selects its actual `cargo` and `rustc` paths.
+    Homebrew Rust may remain on PATH; no manual PATH change or global default
+    toolchain change is required for `uv sync` and `uv build`.
+
+    This project and its older Rust dependencies use unstable features. Keep the
+    pinned nightly and [Cargo.lock](../Cargo.lock) together: the latest nightly
+    removes features required by these dependency versions. Build logs prefixed
+    with `[bcml build]` identify the selected toolchain and binary paths and retain
+    rustup errors, exit codes and timeouts. CI retains these in the job logs.
 
 On Linux, `./bootstrap.sh` performs the dependency installation and resource builds
 automatically. A failed step stops the script and keeps the underlying error visible.

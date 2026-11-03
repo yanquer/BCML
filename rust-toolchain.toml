@@ -1,0 +1,4 @@
+# 固定旧版依赖仍支持的 nightly，避免滚动升级导致特性移除或 edition 不兼容。
+[toolchain]
+channel = "nightly-2023-12-01"
+profile = "minimal"

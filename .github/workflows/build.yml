@@ -29,6 +29,10 @@ jobs:
               - 'src/**'
               - 'bootstrap.sh'
               - 'Cargo.toml'
+              - 'Cargo.lock'
+              - 'rust-toolchain.toml'
+              - '_build_backend.py'
+              - 'tests/**'
               - 'pyproject.toml'
               - 'uv.lock'
               - '.python-version'
@@ -67,24 +71,28 @@ jobs:
         python-version: "3.9"
     - name: Check Python lockfile
       run: uv lock --check
-    - name: Install Rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-        profile: default
-        components: rustfmt, rust-src
+    - name: Test build backend
+      run: |
+        uv sync --locked --only-dev
+        uv run --frozen --no-sync python -m unittest discover -s tests -v
+    - name: Install pinned Rust toolchain
+      id: rust
+      shell: bash
+      run: |
+        rustup show active-toolchain
+        echo "channel=$(rustup show active-toolchain | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
     - name: install-cmake
       uses: Symbitic/install-cmake@v0.1.0
     - name: Patch roead version
       run: sed -i 's/<0.10.4/0.10.4/g' Cargo.toml
     - name: Check
-      run: cargo +nightly check --verbose
+      run: cargo check --locked --verbose
     - uses: messense/maturin-action@v1
       with:
         maturin-version: v0.12.20
         command: build
-        args: --release
-        rust-toolchain: nightly
+        args: --release --cargo-extra-args=--locked
+        rust-toolchain: ${{ steps.rust.outputs.channel }}
 
   maturin_build_win:
     name: Maturin (Windows)
@@ -100,16 +108,20 @@ jobs:
         python-version: "3.9"
     - name: Check Python lockfile
       run: uv lock --check
-    - name: Install Rust toolchain
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-        profile: default
-        components: rustfmt, rust-src
+    - name: Test build backend
+      run: |
+        uv sync --locked --only-dev
+        uv run --frozen --no-sync python -m unittest discover -s tests -v
+    - name: Install pinned Rust toolchain
+      id: rust
+      shell: bash
+      run: |
+        rustup show active-toolchain
+        echo "channel=$(rustup show active-toolchain | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
     - uses: messense/maturin-action@v1
       name: Build with Maturin
       with:
         maturin-version: v0.12.20
         command: build
-        args: --release
-        rust-toolchain: nightly
+        args: --release --cargo-extra-args=--locked
+        rust-toolchain: ${{ steps.rust.outputs.channel }}
