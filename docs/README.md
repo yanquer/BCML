@@ -102,51 +102,64 @@ to launch BCML in the future
 
 Building from source requires, in addition to the general prerequisites:
 
--   Python 3.7 - 3.10 64 bit
-
+-   [uv](https://docs.astral.sh/uv/getting-started/installation/)
 -   Rust 1.60+ (nightly)
-
 -   Node.js v14+
 
--   mkdocs and mkdocs-material
+Run the following commands from the repository root. uv selects Python 3.9 from
+[.python-version](../.python-version), downloads it if necessary, and manages the
+`.venv` environment without manual activation. The package supports Python 3.7–3.10;
+uv development commands require Python 3.8–3.10.
 
-    Run `pip install mkdocs mkdocs-material` in venv if not using `bootstrap.sh`
+1. Install the locked runtime and development dependencies without building BCML yet:
 
-Steps to build from source:
+    ```sh
+    uv sync --locked --no-install-project
+    ```
 
-1. Create and activate a Python virtual environment (venv)
+2. Prepare the webpack bundle:
 
-    1. Open terminal to repo root folder
-    2. `python -m venv venv`
-    3. Activate the venv (usually `venv/bin/activate` on Linux or `venv\Scripts\activate.ps1` on Windows)
+    ```sh
+    cd bcml/assets
+    npm install
+    npm run build
+    cd ../..
+    ```
 
-2. Install Python requirements
+    Use `npm run test` to watch while editing. With Node.js 17+, set
+    `NODE_OPTIONS=--openssl-legacy-provider` if required by the frontend toolchain.
 
-    1. Open terminal to repo root folder
-    2. Run `pip install -r requirements.txt`
-    3. Also install Maturin: `pip install maturin`
+3. Build the bundled help:
 
-3. Build Rust extension module
+    ```sh
+    uv run --frozen --no-sync mkdocs build -d bcml/assets/help
+    ```
 
-    1. Open terminal to repo root folder
-    2. Run `maturin develop` (or `maturin develop --release` for performance)
+4. Build the Rust extension and install BCML in editable mode:
 
-4. Prepare the webpack bundle
+    ```sh
+    uv sync --locked
+    ```
 
-    1. Open terminal to `bcml/assets`
-    2. Run `npm install`
-    3. Run `npm run build` (or `npm run test` to watch while editing)
+5. Run BCML or create an installable wheel:
 
-5. Build the docs
+    ```sh
+    uv run --locked bcml
+    uv run --locked bcml-debug
+    uv build --wheel
+    ```
 
-    1. Open terminal to repo root folder
-    2. Run `mkdocs build`
+    For an optimized development extension, run
+    `uv run --locked maturin develop --release`. Maturin remains the Rust build backend.
 
-6. Create an installable wheel with `maturin build` or run without installing with
-   `python -m bcml`
+On Linux, `./bootstrap.sh` performs the dependency installation and resource builds
+automatically. A failed step stops the script and keeps the underlying error visible.
 
-Note that on Linux, you can simply run `bootstrap.sh` to perform these steps
-automatically unless you would like more control.
+Manage dependencies in [pyproject.toml](../pyproject.toml) using `uv add` or
+`uv add --dev`, and commit the resulting [uv.lock](../uv.lock). After changing only
+the dependency metadata manually, run `uv lock`. `requirements.txt` and `setup.py`
+remain legacy packaging inputs; keep their runtime requirements consistent with
+`pyproject.toml` if they change. CI uses `--locked` to reject stale lockfiles.
 
 ## Usage and Troubleshooting
 

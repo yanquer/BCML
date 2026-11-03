@@ -30,6 +30,9 @@ jobs:
               - 'bootstrap.sh'
               - 'Cargo.toml'
               - 'pyproject.toml'
+              - 'uv.lock'
+              - '.python-version'
+              - '.github/workflows/build.yml'
 
   npm_build:
     name: npm build
@@ -57,6 +60,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "0.8.17"
+        python-version: "3.9"
+    - name: Check Python lockfile
+      run: uv lock --check
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -71,7 +81,7 @@ jobs:
       run: cargo +nightly check --verbose
     - uses: messense/maturin-action@v1
       with:
-        maturin-version: latest
+        maturin-version: v0.12.20
         command: build
         args: --release
         rust-toolchain: nightly
@@ -83,6 +93,13 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "0.8.17"
+        python-version: "3.9"
+    - name: Check Python lockfile
+      run: uv lock --check
     - name: Install Rust toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -92,7 +109,7 @@ jobs:
     - uses: messense/maturin-action@v1
       name: Build with Maturin
       with:
-        maturin-version: latest
+        maturin-version: v0.12.20
         command: build
         args: --release
         rust-toolchain: nightly

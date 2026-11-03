@@ -1,45 +1,45 @@
 #!/bin/bash
-function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4); }'; }
+# 使用 uv 管理开发环境，并依次构建文档、前端资源和 Rust 扩展。
+set -euo pipefail
 
-if [ ! command -v npm &> /dev/null ] || [ $(version $($(echo node -v) | sed -e s/^v//)) -lt 14000000000 ]
-then
-    echo "Node.js v14+ is required to build BCML but was not found"
-    exit
+cd "$(dirname "$0")"
+
+if ! command -v uv >/dev/null 2>&1; then
+    echo "uv is required: https://docs.astral.sh/uv/getting-started/installation/" >&2
+    exit 1
 fi
 
-if [ ! command -v pip3 &> /dev/null ] || [ $(version $(python3 -V | sed -e s/^Python\ //)) -lt 3007000000 ]
-then
-    echo "Python 3.7+ is required to build BCML but was not found"
-    exit
+if ! command -v npm >/dev/null 2>&1 || ! command -v node >/dev/null 2>&1; then
+    echo "Node.js v14+ and npm are required to build BCML" >&2
+    exit 1
+fi
+if [ "$(node -p 'Number(process.versions.node.split(".")[0])')" -lt 14 ]; then
+    echo "Node.js v14+ is required to build BCML" >&2
+    exit 1
 fi
 
-if [ ! command -v cargo &> /dev/null ] || [ $(version $(cargo -V | sed -e s/^cargo\ //)) -lt 1060000000 ]
-then
-    echo "Cargo 1.60+ is required to build BCML but was not found"
-    exit
+if ! command -v cargo >/dev/null 2>&1; then
+    echo "Rust 1.60+ (nightly) is required to build BCML" >&2
+    exit 1
 fi
 
-echo "Creating Python virtual environment..."
-python3 -m venv venv >/dev/null
-source venv/bin/activate
-
-echo "Installing Python dependencies..."
-pip3 install --disable-pip-version-check mkdocs mkdocs-material setuptools wheel pyqtwebengine maturin >/dev/null
-pip3 install --disable-pip-version-check -r requirements.txt >/dev/null
+echo "Installing locked Python dependencies with uv..."
+# 先安装依赖，生成资源后再安装包含 Rust 扩展的项目。
+uv sync --locked --no-install-project
 
 echo "Building docs..."
-mkdocs build -q -d bcml/assets/help >/dev/null
+uv run --frozen --no-sync mkdocs build -q -d bcml/assets/help
 
 echo "Installing npm packages..."
 export NODE_OPTIONS=--openssl-legacy-provider
-cd bcml/assets
-npm install --loglevel=error >/dev/null
+pushd bcml/assets >/dev/null
+npm install --loglevel=error
 echo "Building webpack bundle..."
-npm run build --loglevel=error >/dev/null
-cd ../../
+npm run build --loglevel=error
+popd >/dev/null
 
-echo "Compiling Rust extension module..."
-maturin develop --cargo-extra-args="--quiet" >/dev/null
+echo "Compiling Rust extension module and installing BCML..."
+uv sync --locked
 
 echo "Done! You are now ready to work on BCML."
-echo "You can run with \`python -m bcml\` or build an installable wheel with \`maturin build\`."
+echo 'Run with `uv run --locked bcml` or build a wheel with `uv build --wheel`.'

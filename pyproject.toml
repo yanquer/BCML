@@ -6,8 +6,7 @@ build-backend = "maturin"
 name = "bcml"
 version = "3.10.8"
 description = "A mod manager for The Legend of Zelda: Breath of the Wild"
-author = "NiceneNerd"
-author_email = "macadamiadaze@gmail.com"
+authors = [{ name = "NiceneNerd", email = "macadamiadaze@gmail.com" }]
 license = { file = "docs/LICENSE.md" }
 dependencies = [
     "botw-utils~=0.2.3",
@@ -23,7 +22,7 @@ dependencies = [
     "rstb>=1.2.2",
     "xxhash~=3.2",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.7,<3.11"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -39,3 +38,14 @@ gui-scripts = { bcml = "bcml.__main__:main" }
 [project.urls]
 repository = "https://github.com/NiceneNerd/BCML"
 homepage = "https://gamebanana.com/tools/6624"
+
+[dependency-groups]
+dev = [
+    "maturin>=0.12,<0.13",
+    "mkdocs>=1.4,<2",
+    "mkdocs-material>=8,<10",
+]
+
+[tool.uv.dependency-groups]
+# uv 开发工具使用 Python 3.8+，发行包继续兼容 Python 3.7。
+dev = { requires-python = ">=3.8" }

@@ -94,8 +94,7 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.python-version
+# Python 版本由 uv 的 .python-version 固定并纳入版本控制。
 
 # celery beat schedule file
 celerybeat-schedule

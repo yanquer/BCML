@@ -4,9 +4,9 @@ oead~=1.2.6
 packaging~=21.3
 pythonnet~=3.0.1
 PyQt5; platform_system == 'Linux'
-pyqtwebengine; platform_system == 'Linux'
+pyqtwebengine~=5.15.2; platform_system == 'Linux'
 pywebview==3.7.2
 QtPy; platform_system == 'Linux'
-requests~=2.26.0
+requests~=2.27.1
 rstb>=1.2.2
 xxhash~=3.2
