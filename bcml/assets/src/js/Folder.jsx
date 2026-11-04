@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { Button, Form, InputGroup, OverlayTrigger } from "react-bootstrap";
 
 import React from "react";
@@ -30,7 +31,9 @@ class FolderInput extends React.Component {
             this.setState({ value: nextProps.value }, () => {
                 pywebview.api
                     .dir_exists({ folder: this.state.value, type: this.id })
-                    .then(valid => this.setState({ valid: valid && this.props.isValid }));
+                    .then(valid =>
+                        this.setState({ valid: valid && this.props.isValid })
+                    );
             });
         }
     }
@@ -67,7 +70,7 @@ class FolderInput extends React.Component {
                     placement={this.props.placement || "right"}>
                     <Form.Control
                         disabled={this.props.disabled}
-                        placeholder={this.props.placeholder || "Select a directory"}
+                        placeholder={this.props.placeholder || t("Select a directory")}
                         value={this.state.value}
                         onChange={this.handleChange}
                         ref={this.idRef}
@@ -76,7 +79,7 @@ class FolderInput extends React.Component {
                 </OverlayTrigger>
                 <InputGroup.Append>
                     <Button variant="secondary" onClick={this.folderPick}>
-                        Browse...
+                        {t("Browse...")}
                     </Button>
                 </InputGroup.Append>
             </InputGroup>

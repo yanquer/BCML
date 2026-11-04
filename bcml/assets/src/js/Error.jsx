@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import React from "react";
 import {
     Modal,
@@ -17,8 +18,8 @@ const ErrorDialog = props => {
             scrollable={true}
             dialogClassName="modal-wide"
             onHide={props.onClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>Error</Modal.Title>
+            <Modal.Header closeButton closeLabel={t("Close")}>
+                <Modal.Title>{t("Error")}</Modal.Title>
             </Modal.Header>
             <Modal.Body className="error">
                 <div className="d-flex">
@@ -29,7 +30,7 @@ const ErrorDialog = props => {
                     </div>
                     <div className="pl-2 flex-grow-1" style={{ minWidth: "0px" }}>
                         <p>
-                            Oops!{" "}
+                            {t("Oops!")}{" "}
                             <span
                                 dangerouslySetInnerHTML={{
                                     __html: props.error && props.error.short
@@ -42,7 +43,7 @@ const ErrorDialog = props => {
                                     className="row"
                                     eventKey="0">
                                     <i className="material-icons">expand_more</i>{" "}
-                                    <span>Error Details</span>
+                                    <span>{t("Error Details")}</span>
                                 </Accordion.Toggle>
                                 <Accordion.Collapse eventKey="0">
                                     <Card.Body style={{ padding: 0 }}>
@@ -57,7 +58,7 @@ const ErrorDialog = props => {
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <OverlayTrigger overlay={<Tooltip>Open in-app help</Tooltip>}>
+                <OverlayTrigger overlay={<Tooltip>{t("Open in-app help")}</Tooltip>}>
                     <Button
                         className="pt-1"
                         size="sm"
@@ -66,7 +67,8 @@ const ErrorDialog = props => {
                         <i className="material-icons">help</i>
                     </Button>
                 </OverlayTrigger>
-                <OverlayTrigger overlay={<Tooltip>Copy error to clipboard</Tooltip>}>
+                <OverlayTrigger
+                    overlay={<Tooltip>{t("Copy error to clipboard")}</Tooltip>}>
                     <Button
                         variant="danger"
                         size="sm"
@@ -80,7 +82,7 @@ const ErrorDialog = props => {
                 </OverlayTrigger>
                 <div className="flex-grow-1"></div>
                 <Button className="py-2" variant="primary" onClick={props.onClose}>
-                    OK
+                    {t("OK")}
                 </Button>
             </Modal.Footer>
         </Modal>

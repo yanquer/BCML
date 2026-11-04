@@ -1,3 +1,4 @@
+import { t, setInterfaceLanguage } from "./i18n";
 import {
     Button,
     Dropdown,
@@ -61,6 +62,7 @@ class App extends React.Component {
         window.addEventListener("pywebviewready", () => {
             setTimeout(async () => {
                 let settings = await pywebview.api.get_settings();
+                setInterfaceLanguage(settings.ui_language);
                 this.setState({ settings }, async () => {
                     let res = await pywebview.api.get_ver();
                     this.setState({ ...res });
@@ -128,7 +130,7 @@ class App extends React.Component {
                 settingsValid: true,
                 savingSettings: false,
                 showProgress: true,
-                progressTitle: "Saving Settings"
+                progressTitle: t("Saving Settings")
             },
             () =>
                 pywebview.api
@@ -168,8 +170,8 @@ class App extends React.Component {
             await new Promise(resolve =>
                 this.setState(
                     {
-                        progressTitle: "One Sec",
-                        progressStatus: "Processing",
+                        progressTitle: t("One Sec"),
+                        progressStatus: t("Processing"),
                         showProgress: true
                     },
                     () => resolve()
@@ -197,7 +199,7 @@ class App extends React.Component {
         this.setState(
             {
                 showProgress: true,
-                progressTitle: "Installing Mod" + (mods.length > 1 ? "s" : "")
+                progressTitle: t(mods.length > 1 ? "Installing Mods" : "Installing Mod")
             },
             () => {
                 pywebview.api
@@ -226,14 +228,14 @@ class App extends React.Component {
         let progressTitle;
         let action;
         if (operation == "create") {
-            progressTitle = "Creating Backup";
+            progressTitle = t("Creating Backup");
             action = pywebview.api.create_backup;
         } else if (operation == "restore") {
-            progressTitle = `Restoring ${backup.name}`;
+            progressTitle = t("Restoring {name}", { name: backup.name });
             action = pywebview.api.restore_backup;
             backup = backup.path;
         } else {
-            progressTitle = `Deleting ${backup.name}`;
+            progressTitle = t("Deleting {name}", { name: backup.name });
             action = pywebview.api.delete_backup;
             backup = backup.path;
         }
@@ -261,7 +263,7 @@ class App extends React.Component {
                         .catch(this.showError)
             );
         if (operation == "delete")
-            this.confirm("Are you sure you want to delete this backup?", task);
+            this.confirm(t("Are you sure you want to delete this backup?"), task);
         else task();
     };
 
@@ -269,13 +271,13 @@ class App extends React.Component {
         let progressTitle;
         let action;
         if (operation == "save") {
-            progressTitle = `Saving Profile: ${profile.name}`;
+            progressTitle = t("Saving Profile: {name}", { name: profile.name });
             action = pywebview.api.save_profile;
         } else if (operation == "load") {
-            progressTitle = `Loading Profile: ${profile.name}`;
+            progressTitle = t("Loading Profile: {name}", { name: profile.name });
             action = pywebview.api.set_profile;
         } else {
-            progressTitle = `Deleting Profile: ${profile.name}`;
+            progressTitle = t("Deleting Profile: {name}", { name: profile.name });
             action = pywebview.api.delete_profile;
         }
         const task = () =>
@@ -303,7 +305,7 @@ class App extends React.Component {
                         .catch(this.showError)
             );
         if (operation == "delete")
-            this.confirm("Are you sure you want to delete this profile?", task);
+            this.confirm(t("Are you sure you want to delete this profile?"), task);
         else task();
     };
 
@@ -312,7 +314,7 @@ class App extends React.Component {
             {
                 showProgress: true,
                 showBackups: false,
-                progressTitle: "Restoring BCML 2.8 Backup"
+                progressTitle: t("Restoring BCML 2.8 Backup")
             },
             () => {
                 pywebview.api
@@ -335,7 +337,7 @@ class App extends React.Component {
         this.setState(
             {
                 showProgress: true,
-                progressTitle: "Exporting Mods..."
+                progressTitle: t("Exporting Mods...")
             },
             () => {
                 pywebview.api
@@ -377,8 +379,9 @@ class App extends React.Component {
 
     updateBcml = () => {
         this.confirm(
-            "Are you sure you want to update BCML? " +
-                "Updating will close the program, run the update, and attempt to lauch it again.",
+            t(
+                "Are you sure you want to update BCML? Updating will close the program, run the update, and attempt to lauch it again."
+            ),
             () => {
                 pywebview.api.update_bcml();
             }
@@ -404,28 +407,28 @@ class App extends React.Component {
                     <Dropdown alignRight>
                         <Dropdown.Toggle
                             id="dropdown-basic"
-                            title="Overflow Menu (Alt+M)">
+                            title={t("Overflow Menu (Alt+M)")}>
                             <i className="material-icons">menu</i>
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item
                                 onClick={() => pywebview.api.save_mod_list()}>
-                                Save Mod List
+                                {t("Save Mod List")}
                             </Dropdown.Item>
                             <Dropdown.Item onClick={this.updateBcml}>
-                                Update BCML
+                                {t("Update BCML")}
                             </Dropdown.Item>
                             <Dropdown.Item as="a" href="/index.html?firstrun">
-                                Run Setup Wizard
+                                {t("Run Setup Wizard")}
                             </Dropdown.Item>
                             <Dropdown.Item
                                 onClick={() => this.setState({ showAbout: true })}>
-                                About
+                                {t("About")}
                             </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                     <OverlayTrigger
-                        overlay={<Tooltip>Help (F1)</Tooltip>}
+                        overlay={<Tooltip>{t("Help (F1)")}</Tooltip>}
                         placement="bottom">
                         <Button
                             size="xs"
@@ -447,7 +450,7 @@ class App extends React.Component {
                         activeKey={this.state.tab}
                         onSelect={k => this.setState({ tab: k })}
                         transition={Fade}>
-                        <Tab eventKey="mod-list" title="Mods">
+                        <Tab eventKey="mod-list" title={t("Mods")}>
                             <Mods
                                 onBackup={() => this.setState({ showBackups: true })}
                                 onProfile={() => this.setState({ showProfiles: true })}
@@ -469,7 +472,7 @@ class App extends React.Component {
                                 onLaunch={this.launchGame}
                             />
                         </Tab>
-                        <Tab eventKey="dev-tools" title="Dev Tools">
+                        <Tab eventKey="dev-tools" title={t("Dev Tools")}>
                             <DevTools
                                 onError={this.showError}
                                 onProgress={this.setProgress}
@@ -482,7 +485,7 @@ class App extends React.Component {
                                 }
                             />
                         </Tab>
-                        <Tab eventKey="settings" title="Settings" className="p-2">
+                        <Tab eventKey="settings" title={t("Settings")} className="p-2">
                             <Settings
                                 saving={this.state.savingSettings}
                                 onFail={() =>
@@ -490,22 +493,19 @@ class App extends React.Component {
                                         savingSettings: false,
                                         showError: true,
                                         error: {
-                                            short:
-                                                "Your settings are not valid and cannot be saved. " +
-                                                "Check that all required fields are completed and " +
-                                                "green before submitting. If you have trouble, consult " +
-                                                "the in-app help.",
-                                            error_text:
-                                                "Your settings are not valid and cannot be saved. " +
-                                                "Check that all required fields are completed and " +
-                                                "green before submitting. If you have trouble, consult " +
-                                                "the in-app help."
+                                            short: t(
+                                                "Your settings are not valid and cannot be saved. Check that all required fields are completed and green before submitting. If you have trouble, consult the in-app help."
+                                            ),
+                                            error_text: t(
+                                                "Your settings are not valid and cannot be saved. Check that all required fields are completed and green before submitting. If you have trouble, consult the in-app help."
+                                            )
                                         }
                                     })
                                 }
                                 onSubmit={this.saveSettings}
                                 onProgress={this.setProgress}
                                 onDone={() => this.setState({ showProgress: false })}
+                                onError={this.showError}
                             />
                             <Button
                                 className="fab"
@@ -644,16 +644,16 @@ class DoneDialog extends React.Component {
                 size="sm"
                 centered
                 onHide={this.props.onClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Done!</Modal.Title>
+                <Modal.Header closeButton closeLabel={t("Close")}>
+                    <Modal.Title>{t("Done!")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Footer>
                     <Button variant="primary" onClick={this.props.onClose}>
-                        OK
+                        {t("OK")}
                     </Button>
                     {this.state.hasCemu && (
                         <Button variant="secondary" onClick={this.launch_game}>
-                            Launch Game
+                            {t("Launch Game")}
                         </Button>
                     )}
                 </Modal.Footer>
@@ -665,14 +665,14 @@ class DoneDialog extends React.Component {
 const ConfirmDialog = props => {
     return (
         <Modal show={props.show} onHide={props.onClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>Please Confirm</Modal.Title>
+            <Modal.Header closeButton closeLabel={t("Close")}>
+                <Modal.Title>{t("Please Confirm")}</Modal.Title>
             </Modal.Header>
             <Modal.Body>{props.message}</Modal.Body>
             <Modal.Footer>
-                <Button onClick={() => props.onClose(true)}>OK</Button>
+                <Button onClick={() => props.onClose(true)}>{t("OK")}</Button>
                 <Button variant="secondary" onClick={() => props.onClose(false)}>
-                    Close
+                    {t("Close")}
                 </Button>
             </Modal.Footer>
         </Modal>
@@ -683,15 +683,17 @@ const UpdateDialog = props => {
     return (
         <Modal show={props.show}>
             <Modal.Header>
-                <Modal.Title>Update Available</Modal.Title>
+                <Modal.Title>{t("Update Available")}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                There is a new update available for BCML. Would you like to install it?
+                {t(
+                    "There is a new update available for BCML. Would you like to install it?"
+                )}
             </Modal.Body>
             <Modal.Footer>
-                <Button onClick={() => props.onClose(true)}>OK</Button>
+                <Button onClick={() => props.onClose(true)}>{t("OK")}</Button>
                 <Button variant="secondary" onClick={() => props.onClose(false)}>
-                    Close
+                    {t("Close")}
                 </Button>
             </Modal.Footer>
         </Modal>
@@ -728,17 +730,19 @@ class Changelog extends React.Component {
     render = () => {
         return this.state.info?.body ? (
             <Modal show={this.props.show}>
-                <Modal.Header closeButton>
-                    <Modal.Title>BCML Updated</Modal.Title>
+                <Modal.Header closeButton closeLabel={t("Close")}>
+                    <Modal.Title>{t("BCML Updated")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p>
-                        BCML has been updated to {this.state.info?.tag_name}. Changelog:
+                        {t("BCML has been updated to ")}
+                        {this.state.info?.tag_name}
+                        {t(". Changelog:")}
                     </p>
                     <ReactMarkdown>{this.state.info?.body}</ReactMarkdown>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={() => this.props.onClose()}>OK</Button>
+                    <Button onClick={() => this.props.onClose()}>{t("OK")}</Button>
                 </Modal.Footer>
             </Modal>
         ) : (

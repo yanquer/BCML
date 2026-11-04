@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { Button, ButtonGroup, FormControl, InputGroup, Modal } from "react-bootstrap";
 
 import React from "react";
@@ -33,16 +34,17 @@ class ProfileModal extends React.Component {
                 show={this.props.show}
                 style={{ opacity: this.props.busy ? "0" : "1.0" }}
                 onHide={this.props.onClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Mod Profiles</Modal.Title>
+                <Modal.Header closeButton closeLabel={t("Close")}>
+                    <Modal.Title>{t("Mod Profiles")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="h5">
-                        <strong>Current Profile:</strong> {this.state.currentProfile?.name || <i>None</i>}
+                        <strong>{t("Current Profile:")}</strong>{" "}
+                        {this.state.currentProfile?.name || <i>{t("None")}</i>}
                     </div>
                     <InputGroup className="mb-3">
                         <FormControl
-                            placeholder="New profile name"
+                            placeholder={t("New profile name")}
                             value={this.state.profileName}
                             onChange={e =>
                                 this.setState({ profileName: e.currentTarget.value })
@@ -53,13 +55,16 @@ class ProfileModal extends React.Component {
                                 variant="primary"
                                 disabled={!this.state.profileName}
                                 onClick={() =>
-                                    this.props.onSave({ name: this.state.profileName }, "save")
+                                    this.props.onSave(
+                                        { name: this.state.profileName },
+                                        "save"
+                                    )
                                 }>
-                                Save
+                                {t("Save")}
                             </Button>
                         </InputGroup.Append>
                     </InputGroup>
-                    <div className="h5">Available Profiles</div>
+                    <div className="h5">{t("Available Profiles")}</div>
                     {this.state.profiles.length > 0 ? (
                         this.state.profiles.map(profile => (
                             <div
@@ -70,7 +75,7 @@ class ProfileModal extends React.Component {
                                 <ButtonGroup size="xs">
                                     <Button
                                         variant="success"
-                                        title="Load Profile"
+                                        title={t("Load Profile")}
                                         onClick={() =>
                                             this.props.onLoad(profile, "load")
                                         }>
@@ -78,7 +83,7 @@ class ProfileModal extends React.Component {
                                     </Button>
                                     <Button
                                         variant="danger"
-                                        title="Delete Profile"
+                                        title={t("Delete Profile")}
                                         onClick={() =>
                                             this.props.onDelete(profile, "delete")
                                         }>
@@ -88,13 +93,13 @@ class ProfileModal extends React.Component {
                             </div>
                         ))
                     ) : (
-                        <p>No profiles yet</p>
+                        <p>{t("No profiles yet")}</p>
                     )}
                 </Modal.Body>
                 <Modal.Footer>
                     <div className="flex-grow-1"></div>
                     <Button variant="secondary" onClick={this.props.onClose}>
-                        Close
+                        {t("Close")}
                     </Button>
                 </Modal.Footer>
             </Modal>

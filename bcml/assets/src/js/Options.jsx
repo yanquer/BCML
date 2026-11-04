@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import Form from "react-bootstrap/Form";
 import Popover from "react-bootstrap/Popover";
 import React from "react";
@@ -65,7 +66,7 @@ class OptionsDialog extends React.Component {
     render() {
         return (
             <Popover className="options">
-                <Popover.Title>Advanced Options</Popover.Title>
+                <Popover.Title>{t("Advanced Options")}</Popover.Title>
                 {!this.state.loading ? (
                     <Popover.Content>
                         {this.state.refs.map(opt => (
@@ -77,7 +78,9 @@ class OptionsDialog extends React.Component {
                                         checked={this.props.options.disable.includes(
                                             opt.name
                                         )}
-                                        label={`Disable ${opt.friendly}`}
+                                        label={t("Disable {merger}", {
+                                            merger: t(opt.friendly)
+                                        })}
                                         onChange={this.toggleDisable.bind(this)}
                                     />
                                 )}
@@ -88,11 +91,11 @@ class OptionsDialog extends React.Component {
                                         data-merger={opt.name}
                                         data-name={optName}
                                         checked={
-                                            this.props.options["options"][
-                                                opt.name
-                                            ][optName]
+                                            this.props.options["options"][opt.name][
+                                                optName
+                                            ]
                                         }
-                                        label={opt.options[optName]}
+                                        label={t(opt.options[optName])}
                                         onChange={this.toggleOption.bind(this)}
                                     />
                                 ))}

@@ -1,13 +1,6 @@
+import { t } from "./i18n";
 import React from "react";
-import {
-    Button,
-    Modal,
-    Row,
-    Col,
-    Form,
-    Accordion,
-    Card
-} from "react-bootstrap";
+import { Button, Modal, Row, Col, Form, Accordion, Card } from "react-bootstrap";
 
 class CompareView extends React.Component {
     constructor(props) {
@@ -54,14 +47,14 @@ class CompareView extends React.Component {
                 scrollable={true}
                 dialogClassName="modal-wide"
                 onHide={this.props.onHide}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Compare Mods</Modal.Title>
+                <Modal.Header closeButton closeLabel={t("Close")}>
+                    <Modal.Title>{t("Compare Mods")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Row>
                         <Col xs={6}>
                             <Form.Group controlId="mod1">
-                                <Form.Label>Select Mod</Form.Label>
+                                <Form.Label>{t("Select Mod")}</Form.Label>
                                 <Form.Control
                                     as="select"
                                     onChange={e =>
@@ -80,14 +73,14 @@ class CompareView extends React.Component {
                             </Form.Group>
                             {this.state.mod1 && (
                                 <>
-                                    <h5>Mod Edits</h5>
+                                    <h5>{t("Mod Edits")}</h5>
                                     <DiffView diff={this.state.diff1} />
                                 </>
                             )}
                         </Col>
                         <Col xs={6}>
                             <Form.Group controlId="mod2">
-                                <Form.Label>Select Mod</Form.Label>
+                                <Form.Label>{t("Select Mod")}</Form.Label>
                                 <Form.Control
                                     as="select"
                                     onChange={e =>
@@ -106,7 +99,7 @@ class CompareView extends React.Component {
                             </Form.Group>
                             {this.state.mod2 && (
                                 <>
-                                    <h5>Mod Edits</h5>
+                                    <h5>{t("Mod Edits")}</h5>
                                     <DiffView diff={this.state.diff2} />
                                 </>
                             )}
@@ -115,7 +108,7 @@ class CompareView extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={this.props.onHide}>
-                        Close
+                        {t("Close")}
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -132,7 +125,7 @@ class DiffView extends React.Component {
         return (
             <>
                 {Object.keys(this.props.diff).map((merger, i) => (
-                    <Accordion key={merger}>
+                    <Accordion key={t(merger)}>
                         <Card>
                             <Accordion.Toggle
                                 as={Card.Header}
@@ -141,7 +134,7 @@ class DiffView extends React.Component {
                                     this.props.diff[merger].length == 0 &&
                                     "text-secondary"
                                 }>
-                                {merger}
+                                {t(merger)}
                             </Accordion.Toggle>
                             <Accordion.Collapse eventKey={i}>
                                 <Card.Body>
@@ -151,7 +144,7 @@ class DiffView extends React.Component {
                                         ))
                                     ) : (
                                         <div className="text-secondary">
-                                            No edits
+                                            {t("No edits")}
                                         </div>
                                     )}
                                 </Card.Body>

@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import "array-flat-polyfill";
 
 import {
@@ -86,7 +87,7 @@ class DevTools extends React.Component {
     };
 
     createBnp = () => {
-        this.props.onProgress("Creating BNP...");
+        this.props.onProgress(t("Creating BNP..."));
         let { showDepends, showOptions, ...args } = this.state;
         pywebview.api
             .create_bnp(args)
@@ -110,7 +111,7 @@ class DevTools extends React.Component {
     };
 
     exportBnp = () => {
-        this.props.onProgress("Exporting BNP to Standalone Mod");
+        this.props.onProgress(t("Exporting BNP to Standalone Mod"));
         pywebview.api
             .bnp_to_gfx()
             .then(res => {
@@ -123,7 +124,7 @@ class DevTools extends React.Component {
     };
 
     generateRstb = () => {
-        this.props.onProgress("Generating RSTB for Mod");
+        this.props.onProgress(t("Generating RSTB for Mod"));
         pywebview.api
             .gen_rstb()
             .then(res => {
@@ -136,7 +137,7 @@ class DevTools extends React.Component {
     };
 
     upgradeBnp = () => {
-        this.props.onProgress("Upgrading BNP");
+        this.props.onProgress(t("Upgrading BNP"));
         pywebview.api
             .upgrade_bnp()
             .then(res => {
@@ -153,7 +154,7 @@ class DevTools extends React.Component {
             <>
                 <Row className="p-2" style={{ height: "100%" }}>
                     <Col className="bnp" xs={8}>
-                        <h4>BNP Creator</h4>
+                        <h4>{t("BNP Creator")}</h4>
                         <Form
                             style={{
                                 display: "flex",
@@ -161,14 +162,14 @@ class DevTools extends React.Component {
                                 flexDirection: "column"
                             }}>
                             <Form.Group controlId="folder">
-                                <Form.Label>Mod root folder</Form.Label>
+                                <Form.Label>{t("Mod root folder")}</Form.Label>
                                 <FolderInput
                                     isValid={false}
                                     overlay={
                                         <Tooltip>
-                                            The folder containing the main mod content,
-                                            should contain "content" and/or "aoc" for
-                                            Wii U/Cemu or "TITLEID/romfs" for Switch.
+                                            {t(
+                                                'The folder containing the main mod content, should contain "content" and/or "aoc" for Wii U/Cemu or "TITLEID/romfs" for Switch.'
+                                            )}
                                         </Tooltip>
                                     }
                                     value={this.state.folder}
@@ -176,15 +177,15 @@ class DevTools extends React.Component {
                                 />
                             </Form.Group>
                             <Form.Group controlId="name">
-                                <Form.Label>Name</Form.Label>
+                                <Form.Label>{t("Name")}</Form.Label>
                                 <Form.Control
-                                    placeholder="Name your mod"
+                                    placeholder={t("Name your mod")}
                                     value={this.state.name}
                                     onChange={this.handleChange}
                                 />
                             </Form.Group>
                             <Form.Group controlId="image">
-                                <Form.Label>Image</Form.Label>
+                                <Form.Label>{t("Image")}</Form.Label>
                                 <Form.Control
                                     placeholder="https://yourmod.com/preview.jpg"
                                     value={this.state.image}
@@ -192,7 +193,7 @@ class DevTools extends React.Component {
                                 />
                             </Form.Group>
                             <Form.Group controlId="url">
-                                <Form.Label>URL</Form.Label>
+                                <Form.Label>{t("URL")}</Form.Label>
                                 <Form.Control
                                     placeholder="https://www.yourmod.url/"
                                     value={this.state.url}
@@ -200,7 +201,7 @@ class DevTools extends React.Component {
                                 />
                             </Form.Group>
                             <Form.Group controlId="version">
-                                <Form.Label>Version</Form.Label>
+                                <Form.Label>{t("Version")}</Form.Label>
                                 <Form.Control
                                     value={this.state.version}
                                     onChange={this.handleChange}
@@ -213,7 +214,7 @@ class DevTools extends React.Component {
                                     display: "flex",
                                     flexDirection: "column"
                                 }}>
-                                <Form.Label>Description</Form.Label>
+                                <Form.Label>{t("Description")}</Form.Label>
                                 <Form.Control
                                     as="textarea"
                                     style={{ height: "100%" }}
@@ -246,7 +247,7 @@ class DevTools extends React.Component {
                                                     .classList.toggle("dev-open")
                                             }
                                             variant="info"
-                                            title="Advanced Options">
+                                            title={t("Advanced Options")}>
                                             <i
                                                 className="material-icons"
                                                 style={{
@@ -268,7 +269,7 @@ class DevTools extends React.Component {
                                         onClick={() =>
                                             this.setState({ showDepends: true })
                                         }>
-                                        Dependencies
+                                        {t("Dependencies")}
                                     </Button>{" "}
                                     <Button
                                         disabled={!this.state.folder}
@@ -276,7 +277,7 @@ class DevTools extends React.Component {
                                         onClick={() =>
                                             this.setState({ showOptions: true })
                                         }>
-                                        Options
+                                        {t("Options")}
                                     </Button>{" "}
                                     <Button
                                         variant="primary"
@@ -284,18 +285,18 @@ class DevTools extends React.Component {
                                         disabled={
                                             !(this.state.folder && this.state.name)
                                         }>
-                                        Create BNP
+                                        {t("Create BNP")}
                                     </Button>
                                 </Col>
                             </Row>
                         </Form>
                     </Col>
                     <Col xs={4} className="dev-other">
-                        <h4>Other Tools</h4>
+                        <h4>{t("Other Tools")}</h4>
                         <Row>
                             <Col>
                                 <Button variant="success" onClick={this.generateRstb}>
-                                    Generate RSTB for Mod
+                                    {t("Generate RSTB for Mod")}
                                 </Button>
                             </Col>
                             <Col>
@@ -304,14 +305,14 @@ class DevTools extends React.Component {
                                     onClick={() =>
                                         this.setState({ showCompare: true })
                                     }>
-                                    Compare Mods
+                                    {t("Compare Mods")}
                                 </Button>
                             </Col>
                             <Col>
                                 <Button
                                     variant="info"
                                     onClick={() => pywebview.api.explore_master()}>
-                                    View Merged Files
+                                    {t("View Merged Files")}
                                 </Button>
                             </Col>
                             <Col>
@@ -320,17 +321,17 @@ class DevTools extends React.Component {
                                     onClick={() =>
                                         this.setState({ showConvert: true })
                                     }>
-                                    Convert BNP Platform
+                                    {t("Convert BNP Platform")}
                                 </Button>
                             </Col>
                             <Col>
                                 <Button variant="danger" onClick={this.exportBnp}>
-                                    BNP to Standalone
+                                    {t("BNP to Standalone")}
                                 </Button>
                             </Col>
                             <Col>
                                 <Button variant="secondary" onClick={this.upgradeBnp}>
-                                    Upgrade Old BNP
+                                    {t("Upgrade Old BNP")}
                                 </Button>
                             </Col>
                         </Row>
@@ -404,16 +405,17 @@ class Dependencies extends React.Component {
                 show={this.props.show}
                 onHide={this.props.onClose}
                 className="depends">
-                <Modal.Header closeButton>
-                    <Modal.Title>Specify Dependencies</Modal.Title>
+                <Modal.Header closeButton closeLabel={t("Close")}>
+                    <Modal.Title>{t("Specify Dependencies")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p>
-                        Select required mods from your installed mods, or manually add
-                        an ID
+                        {t(
+                            "Select required mods from your installed mods, or manually add an ID"
+                        )}
                     </p>
                     <div className="my-1">
-                        <h5>Installed Mods</h5>
+                        <h5>{t("Installed Mods")}</h5>
                         <div className="bg-dark p-2 rounded">
                             {this.context.mods.length > 0 ? (
                                 this.context.mods.map(mod => (
@@ -429,15 +431,15 @@ class Dependencies extends React.Component {
                                     </div>
                                 ))
                             ) : (
-                                <span>No mods installed</span>
+                                <span>{t("No mods installed")}</span>
                             )}
                         </div>
                     </div>
                     <div className="my-1">
-                        <h5>Add Manual ID</h5>
+                        <h5>{t("Add Manual ID")}</h5>
                         <InputGroup>
                             <FormControl
-                                placeholder="Mod ID"
+                                placeholder={t("Mod ID")}
                                 value={this.state.manualId}
                                 onChange={e =>
                                     this.setState({ manualId: e.target.value })
@@ -455,16 +457,16 @@ class Dependencies extends React.Component {
                                             });
                                             this.setState({ manualId: "" });
                                         } catch (error) {
-                                            alert("Invalid mod ID provided");
+                                            alert(t("Invalid mod ID provided"));
                                         }
                                     }}>
-                                    Add
+                                    {t("Add")}
                                 </Button>
                             </InputGroup.Append>
                         </InputGroup>
                     </div>
                     <div className="my-1">
-                        <h5>Dependencies</h5>
+                        <h5>{t("Dependencies")}</h5>
                         <div className="bg-dark d-flex p-2 rounded">
                             {this.state.depends.length > 0 ? (
                                 this.state.depends.map(depend => (
@@ -493,14 +495,16 @@ class Dependencies extends React.Component {
                                     </h5>
                                 ))
                             ) : (
-                                <span className="text-secondary">No dependencies</span>
+                                <span className="text-secondary">
+                                    {t("No dependencies")}
+                                </span>
                             )}
                         </div>
                     </div>
                 </Modal.Body>
                 <Modal.Footer className="alignright">
                     <Button variant="secondary" onClick={this.props.onClose}>
-                        Close
+                        {t("Close")}
                     </Button>
                     <Button
                         variant="primary"
@@ -509,7 +513,7 @@ class Dependencies extends React.Component {
                                 this.state.depends.map(depend => depend.id)
                             )
                         }>
-                        OK
+                        {t("OK")}
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -658,22 +662,22 @@ class ModOptions extends React.Component {
                 show={this.props.show}
                 onHide={this.props.onClose}
                 scrollable={true}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add Mod Options</Modal.Title>
+                <Modal.Header closeButton closeLabel={t("Close")}>
+                    <Modal.Title>{t("Add Mod Options")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p>
-                        Add options for customizing your mod's installation. You can add
-                        any number of multiple choice checkboxes and/or groups of
-                        mutually exclusive choices.
+                        {t(
+                            "Add options for customizing your mod's installation. You can add any number of multiple choice checkboxes and/or groups of mutually exclusive choices."
+                        )}
                     </p>
                     <Tabs defaultActiveKey="multi">
-                        <Tab eventKey="multi" title="Multiple Choice">
+                        <Tab eventKey="multi" title={t("Multiple Choice")}>
                             <div className="my-2">
-                                <h5>Define Options</h5>
+                                <h5>{t("Define Options")}</h5>
                                 <Form>
                                     <Form.Group controlId="multiFolder">
-                                        <Form.Label>Option Folder</Form.Label>
+                                        <Form.Label>{t("Option Folder")}</Form.Label>
                                         <Form.Control as="select">
                                             {this.state.folders.map(folder => (
                                                 <option key={folder} value={folder}>
@@ -683,25 +687,31 @@ class ModOptions extends React.Component {
                                         </Form.Control>
                                     </Form.Group>
                                     <Form.Group controlId="multiName">
-                                        <Form.Label>Option Name</Form.Label>
-                                        <Form.Control placeholder="Name of the option" />
+                                        <Form.Label>{t("Option Name")}</Form.Label>
+                                        <Form.Control
+                                            placeholder={t("Name of the option")}
+                                        />
                                     </Form.Group>
                                     <Form.Group controlId="multiDesc">
-                                        <Form.Label>Option Description</Form.Label>
-                                        <Form.Control placeholder="Description of the option" />
+                                        <Form.Label>
+                                            {t("Option Description")}
+                                        </Form.Label>
+                                        <Form.Control
+                                            placeholder={t("Description of the option")}
+                                        />
                                     </Form.Group>
                                     <Form.Group controlId="multiDefault">
                                         <Form.Check
                                             type="checkbox"
-                                            label="Enable by default"
+                                            label={t("Enable by default")}
                                         />
                                     </Form.Group>
                                     <Button size="sm" onClick={this.addMulti}>
-                                        Add Option
+                                        {t("Add Option")}
                                     </Button>
                                 </Form>
                                 <div className="m-2">
-                                    <h5>Multiple Choice Options</h5>
+                                    <h5>{t("Multiple Choice Options")}</h5>
                                     <div className="bg-dark p-2 rounded d-flex flex-wrap">
                                         {this.state.multi.length > 0 ? (
                                             this.state.multi.map(opt => (
@@ -733,44 +743,54 @@ class ModOptions extends React.Component {
                                             ))
                                         ) : (
                                             <span className="text-secondary">
-                                                No options added
+                                                {t("No options added")}
                                             </span>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         </Tab>
-                        <Tab eventKey="select" title="Single Select">
+                        <Tab eventKey="select" title={t("Single Select")}>
                             <Row className="my-2">
                                 <Col>
-                                    <h5>Add Select Group</h5>
+                                    <h5>{t("Add Select Group")}</h5>
                                     <Form>
                                         <Form.Group controlId="groupName">
-                                            <Form.Label>Group Name</Form.Label>
-                                            <Form.Control placeholder="Name of the group" />
+                                            <Form.Label>{t("Group Name")}</Form.Label>
+                                            <Form.Control
+                                                placeholder={t("Name of the group")}
+                                            />
                                         </Form.Group>
                                         <Form.Group controlId="groupDesc">
-                                            <Form.Label>Group Description</Form.Label>
-                                            <Form.Control placeholder="Description of the group" />
+                                            <Form.Label>
+                                                {t("Group Description")}
+                                            </Form.Label>
+                                            <Form.Control
+                                                placeholder={t(
+                                                    "Description of the group"
+                                                )}
+                                            />
                                         </Form.Group>
                                         <Form.Group controlId="groupReq">
                                             <Form.Check
-                                                label="Required"
+                                                label={t("Required")}
                                                 type="checkbox"
                                                 name="required"
                                                 value="required"
                                             />
                                         </Form.Group>
                                         <Button size="sm" onClick={this.addGroup}>
-                                            Add Group
+                                            {t("Add Group")}
                                         </Button>
                                     </Form>
                                 </Col>
                                 <Col>
-                                    <h5>Define Option</h5>
+                                    <h5>{t("Define Option")}</h5>
                                     <Form>
                                         <Form.Group controlId="singleFolder">
-                                            <Form.Label>Option Folder</Form.Label>
+                                            <Form.Label>
+                                                {t("Option Folder")}
+                                            </Form.Label>
                                             <Form.Control as="select">
                                                 {this.state.folders.map(folder => (
                                                     <option key={folder} value={folder}>
@@ -780,7 +800,7 @@ class ModOptions extends React.Component {
                                             </Form.Control>
                                         </Form.Group>
                                         <Form.Group controlId="singleGroup">
-                                            <Form.Label>Option Group</Form.Label>
+                                            <Form.Label>{t("Option Group")}</Form.Label>
                                             <Form.Control as="select">
                                                 {this.state.singles.map(single => (
                                                     <option
@@ -792,12 +812,20 @@ class ModOptions extends React.Component {
                                             </Form.Control>
                                         </Form.Group>
                                         <Form.Group controlId="singleName">
-                                            <Form.Label>Option Name</Form.Label>
-                                            <Form.Control placeholder="Name of the option" />
+                                            <Form.Label>{t("Option Name")}</Form.Label>
+                                            <Form.Control
+                                                placeholder={t("Name of the option")}
+                                            />
                                         </Form.Group>
                                         <Form.Group controlId="singleDesc">
-                                            <Form.Label>Option Description</Form.Label>
-                                            <Form.Control placeholder="Description of the option" />
+                                            <Form.Label>
+                                                {t("Option Description")}
+                                            </Form.Label>
+                                            <Form.Control
+                                                placeholder={t(
+                                                    "Description of the option"
+                                                )}
+                                            />
                                         </Form.Group>
                                         <Button
                                             disabled={
@@ -809,13 +837,13 @@ class ModOptions extends React.Component {
                                             }
                                             size="sm"
                                             onClick={this.addSingle}>
-                                            Add Option
+                                            {t("Add Option")}
                                         </Button>
                                     </Form>
                                 </Col>
                             </Row>
                             <div className="mb-2">
-                                <h5>Options</h5>
+                                <h5>{t("Options")}</h5>
                                 <div className="bg-dark p-2 rounded d-flex flex-wrap">
                                     {this.state.singles.length > 0 ? (
                                         this.state.singles.map(group => (
@@ -895,7 +923,7 @@ class ModOptions extends React.Component {
                                                         )
                                                     ) : (
                                                         <span className="text-dark">
-                                                            Empty group
+                                                            {t("Empty group")}
                                                         </span>
                                                     )}
                                                 </div>
@@ -903,7 +931,7 @@ class ModOptions extends React.Component {
                                         ))
                                     ) : (
                                         <span className="text-secondary">
-                                            No options added
+                                            {t("No options added")}
                                         </span>
                                     )}
                                 </div>
@@ -913,7 +941,7 @@ class ModOptions extends React.Component {
                 </Modal.Body>
                 <Modal.Footer className="alignright">
                     <Button variant="secondary" onClick={this.props.onClose}>
-                        Close
+                        {t("Close")}
                     </Button>
                     <Button
                         variant="primary"
@@ -923,7 +951,7 @@ class ModOptions extends React.Component {
                                 single: this.state.singles
                             })
                         }>
-                        OK
+                        {t("OK")}
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -961,9 +989,10 @@ class ModConverter extends React.Component {
     convert = () => {
         this.setState({ busy: true }, async () => {
             this.props.onProgress(
-                `Converting ${this.state.meta.name} to ${
-                    this.state.meta.platform != "wiiu" ? "Wii U" : "Switch"
-                }`
+                t("Converting {name} to {platform}", {
+                    name: this.state.meta.name,
+                    platform: this.state.meta.platform != "wiiu" ? "Wii U" : "Switch"
+                })
             );
             this.setState(
                 {
@@ -986,16 +1015,16 @@ class ModConverter extends React.Component {
                 onHide={this.props.onClose}
                 dialogClassName="modal-wide"
                 style={{ opacity: this.state.busy ? "0" : "1.0" }}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Convert BNP Platform</Modal.Title>
+                <Modal.Header closeButton closeLabel={t("Close")}>
+                    <Modal.Title>{t("Convert BNP Platform")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group>
-                            <Form.Label>BNP mod to convert</Form.Label>
+                            <Form.Label>{t("BNP mod to convert")}</Form.Label>
                             <InputGroup>
                                 <FormControl
-                                    placeholder="BNP to convert"
+                                    placeholder={t("BNP to convert")}
                                     value={this.state.file}
                                     onChange={e =>
                                         this.setState({
@@ -1005,7 +1034,7 @@ class ModConverter extends React.Component {
                                 />
                                 <InputGroup.Append>
                                     <Button variant="secondary" onClick={this.browse}>
-                                        Browse...
+                                        {t("Browse...")}
                                     </Button>
                                 </InputGroup.Append>
                             </InputGroup>
@@ -1017,13 +1046,13 @@ class ModConverter extends React.Component {
                                         {this.state.meta.name}
                                     </Alert.Heading>
                                     <p>
-                                        This mod is for{" "}
+                                        {t("This mod is for")}{" "}
                                         <strong>
                                             {this.state.meta.platform == "wiiu"
                                                 ? "Wii U"
                                                 : "Switch"}
                                         </strong>
-                                        , to be converted to{" "}
+                                        {t(", to be converted to")}{" "}
                                         <strong>
                                             {this.state.meta.platform != "wiiu"
                                                 ? "Wii U"
@@ -1033,16 +1062,16 @@ class ModConverter extends React.Component {
                                 </Alert>
                                 <Form.Group>
                                     <Form.Label>
-                                        Automatic platform conversion is{" "}
+                                        {t("Automatic platform conversion is")}{" "}
                                         <strong>
-                                            <em>very limited</em>
+                                            <em>{t("very limited")}</em>
                                         </strong>
-                                        . Only a few types of mods can be fully
-                                        converted. Please select how you would like BCML
-                                        to handle files it cannot convert:
+                                        {t(
+                                            ". Only a few types of mods can be fully converted. Please select how you would like BCML to handle files it cannot convert:"
+                                        )}
                                     </Form.Label>
                                     <Form.Check
-                                        label="Stop and report error"
+                                        label={t("Stop and report error")}
                                         type="radio"
                                         name="error"
                                         value="fail"
@@ -1054,7 +1083,9 @@ class ModConverter extends React.Component {
                                         }
                                     />
                                     <Form.Check
-                                        label="Convert whatever possible and return list of warnings"
+                                        label={t(
+                                            "Convert whatever possible and return list of warnings"
+                                        )}
                                         type="radio"
                                         name="error"
                                         value="warn"
@@ -1075,20 +1106,23 @@ class ModConverter extends React.Component {
                                 }>
                                 <Alert.Heading>
                                     {this.state.results.success
-                                        ? "Conversion successful!"
-                                        : "Conversion failed!"}
+                                        ? t("Conversion successful!")
+                                        : t("Conversion failed!")}
                                 </Alert.Heading>
                                 {this.state.results.success ? (
                                     <>
                                         <p>
-                                            {this.state.meta.name} was successfully
-                                            converted to{" "}
+                                            {this.state.meta.name}
+                                            {t(" was successfully converted to")}{" "}
                                             {this.state.meta.platform != "wiiu"
                                                 ? "Wii U"
                                                 : "Switch"}
                                             .{" "}
                                             {this.state.results.data.length > 0 &&
-                                                `There were ${this.state.results.data.length} warnings:`}
+                                                t("There were {count} warnings:", {
+                                                    count: this.state.results.data
+                                                        .length
+                                                })}
                                         </p>
                                         {this.state.results.data.length > 0 && (
                                             <Form.Control
@@ -1104,15 +1138,15 @@ class ModConverter extends React.Component {
                                 ) : (
                                     <>
                                         <p>
-                                            {this.state.meta.name} could not be
-                                            converted to{" "}
+                                            {this.state.meta.name}
+                                            {t(" could not be converted to")}{" "}
                                             {this.state.meta.platform != "wiiu"
                                                 ? "Wii U"
                                                 : "Switch"}
-                                            . Reason:
+                                            {t(". Reason:")}
                                             <br />"{this.state.results.error.short}"
                                             <br />
-                                            Further details:
+                                            {t("Further details:")}
                                         </p>
                                         <Form.Control
                                             readOnly
@@ -1128,13 +1162,13 @@ class ModConverter extends React.Component {
                 </Modal.Body>
                 <Modal.Footer className="alignright">
                     <Button variant="secondary" onClick={this.props.onClose}>
-                        Close
+                        {t("Close")}
                     </Button>
                     <Button
                         variant="primary"
                         disabled={!this.state.file || this.state.results}
                         onClick={this.convert}>
-                        Convert
+                        {t("Convert")}
                     </Button>
                 </Modal.Footer>
             </Modal>

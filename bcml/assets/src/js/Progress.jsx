@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { Modal, Spinner } from "react-bootstrap";
 
 import React from "react";
@@ -156,7 +157,7 @@ class ProgressModal extends React.Component {
                         style={{ minHeight: "1rem" }}
                         dangerouslySetInnerHTML={{
                             __html:
-                                messages[this.state.messageIdx] +
+                                t(messages[this.state.messageIdx]) +
                                 (/[a-zA-Z]/.test(
                                     messages[this.state.messageIdx].slice(-1)
                                 )

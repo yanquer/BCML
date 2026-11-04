@@ -1,3 +1,4 @@
+import { t, setInterfaceLanguage } from "./i18n";
 import { Button, Col, Form, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 
 import FolderInput from "./Folder.jsx";
@@ -20,6 +21,7 @@ class Settings extends React.Component {
             site_meta: "",
             no_guess: false,
             lang: "",
+            ui_language: "auto",
             no_cemu: false,
             wiiu: true,
             no_hardlinks: false,
@@ -147,7 +149,7 @@ class Settings extends React.Component {
                     prevState[k] != this.state[k] &&
                     !prevState[k]
             )) {
-                this.props.onProgress("Checking Folder, One Sec...");
+                this.props.onProgress(t("Checking Folder, One Sec..."));
                 let dir = await pywebview.api.drill_dir({
                     type: key,
                     folder: this.state[key]
@@ -164,6 +166,7 @@ class Settings extends React.Component {
         try {
             e.persist();
         } catch (error) {}
+        if (e.target.id === "ui_language") setInterfaceLanguage(e.target.value);
         this.setState({
             [e.target.id]:
                 e.target.type != "checkbox" ? e.target.value : e.target.checked
@@ -172,7 +175,7 @@ class Settings extends React.Component {
 
     makeShortcut = async desktop => {
         try {
-            this.props.onProgress("Creating shortcut...");
+            this.props.onProgress(t("Creating shortcut..."));
             await pywebview.api.make_shortcut({ desktop });
             this.props.onDone();
         } catch (error) {
@@ -188,16 +191,34 @@ class Settings extends React.Component {
                 onSubmit={this.handleSubmit}
                 ref={this.formRef}
                 className="settings">
-                <h5>Game Folders</h5>
+                <Form.Group controlId="ui_language">
+                    <Form.Label>{t("Interface Language")}</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={this.state.ui_language}
+                        onChange={this.handleChange}>
+                        <option value="auto">{t("Follow system")}</option>
+                        <option value="zh-CN">简体中文</option>
+                        <option value="en">English</option>
+                    </Form.Control>
+                    <Form.Text>
+                        {t(
+                            "Changes apply immediately. Save settings to keep this choice. Game text language is configured separately."
+                        )}
+                    </Form.Text>
+                </Form.Group>
+                <h5>{t("Game Folders")}</h5>
                 <Row>
                     <Col>
                         <Form.Group controlId="cemu_dir">
-                            <Form.Label>Cemu Directory</Form.Label>
+                            <Form.Label>{t("Cemu Directory")}</Form.Label>
                             <FolderInput
                                 value={this.state.cemu_dir}
                                 disabled={!this.state.wiiu || this.state.no_cemu}
                                 onChange={this.handleChange}
-                                placeholder='Folder containing Cemu.exe or Cemu.app'
+                                placeholder={t(
+                                    "Folder containing Cemu.exe or Cemu.app"
+                                )}
                                 isValid={
                                     this.state.cemu_dir != "" || this.state.no_cemu
                                 }
@@ -205,21 +226,24 @@ class Settings extends React.Component {
                                     <Tooltip>
                                         {this.state.wiiu ? (
                                             <>
-                                                (Optional) The directory where Cemu is
-                                                installed. Note that this <em>must</em>{" "}
-                                                be the folder containing Cemu.exe
-                                                on Windows or Cemu.app on macOS.
-                                                Start Cemu once before selecting it.
+                                                {t(
+                                                    "(Optional) The directory where Cemu is installed. Note that this "
+                                                )}
+                                                <em>{t("must")}</em>{" "}
+                                                {t(
+                                                    "be the folder containing Cemu.exe on Windows or Cemu.app on macOS. Start Cemu once before selecting it."
+                                                )}
                                             </>
                                         ) : (
-                                            "Not applicable for Switch mode"
+                                            t("Not applicable for Switch mode")
                                         )}
                                     </Tooltip>
                                 }
                             />
                             <Form.Control.Feedback type="invalid">
-                                A Cemu folder is required unless you check the no Cemu
-                                option
+                                {t(
+                                    "A Cemu folder is required unless you check the no Cemu option"
+                                )}
                             </Form.Control.Feedback>
                         </Form.Group>
                     </Col>
@@ -227,17 +251,17 @@ class Settings extends React.Component {
                         <Form.Group
                             controlId="game_dir"
                             className={!this.state.wiiu && "d-none"}>
-                            <Form.Label>Base Game Directory</Form.Label>
+                            <Form.Label>{t("Base Game Directory")}</Form.Label>
                             <FolderInput
                                 value={this.state.game_dir}
                                 onChange={this.handleChange}
-                                placeholder='Tip: should end in "content"'
+                                placeholder={t('Tip: should end in "content"')}
                                 isValid={this.state.game_dir != "" || !this.state.wiiu}
                                 overlay={
                                     <Tooltip>
-                                        The folder containing the base game files for
-                                        BOTW, without the update or DLC files. The last
-                                        folder should be "content", e.g.
+                                        {t(
+                                            'The folder containing the base game files for BOTW, without the update or DLC files. The last folder should be "content", e.g.'
+                                        )}
                                         <br />
                                         <code>
                                             C:\Games\The Legend of Zelda Breath of the
@@ -249,12 +273,12 @@ class Settings extends React.Component {
                             />
                         </Form.Group>
                         <Form.Control.Feedback type="invalid">
-                            The BOTW dump folder is required
+                            {t("The BOTW dump folder is required")}
                         </Form.Control.Feedback>
                         <Form.Group
                             controlId="game_dir_nx"
                             className={this.state.wiiu && "d-none"}>
-                            <Form.Label>Base+Update Directory</Form.Label>
+                            <Form.Label>{t("Base+Update Directory")}</Form.Label>
                             <FolderInput
                                 value={this.state.game_dir_nx}
                                 onChange={this.handleChange}
@@ -263,9 +287,9 @@ class Settings extends React.Component {
                                 }
                                 overlay={
                                     <Tooltip>
-                                        The folder containing the 1.6.0 game files for
-                                        BOTW. The base game and update should be merged.
-                                        The last folder should be "romfs", e.g.
+                                        {t(
+                                            'The folder containing the 1.6.0 game files for BOTW. The base game and update should be merged. The last folder should be "romfs", e.g.'
+                                        )}
                                         <br />
                                         <code>
                                             C:\Games\BOTW\01007EF00011E800\romfs
@@ -276,21 +300,23 @@ class Settings extends React.Component {
                             />
                         </Form.Group>
                         <Form.Control.Feedback type="invalid">
-                            The BOTW dump folder is required
+                            {t("The BOTW dump folder is required")}
                         </Form.Control.Feedback>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
                         <Form.Group controlId="update_dir">
-                            <Form.Label>Update Directory</Form.Label>
+                            <Form.Label>{t("Update Directory")}</Form.Label>
                             <FolderInput
                                 value={this.state.update_dir}
                                 onChange={this.handleChange}
                                 placeholder={
                                     this.state.wiiu
-                                        ? `Tip: should end in "content", usually in Cemu's MLC folder`
-                                        : "N/A for Switch mode"
+                                        ? t(
+                                              'Tip: should end in "content", usually in Cemu\'s MLC folder'
+                                          )
+                                        : t("N/A for Switch mode")
                                 }
                                 isValid={
                                     this.state.update_dir != "" || !this.state.wiiu
@@ -300,43 +326,42 @@ class Settings extends React.Component {
                                     <Tooltip>
                                         {this.state.wiiu ? (
                                             <>
-                                                The folder containing the update files
-                                                for BOTW, version 1.5.0. The last folder
-                                                should be "content", and if you use
-                                                Cemu, it should be in your "mlc01"
-                                                folder, e.g.
+                                                {t(
+                                                    'The folder containing the update files for BOTW, version 1.5.0. The last folder should be "content", and if you use Cemu, it should be in your "mlc01" folder, e.g.'
+                                                )}
                                                 <br />
                                                 <code>
                                                     C:\Cemu\mlc01\usr\title\0005000E\101C9400\content
                                                 </code>
                                             </>
                                         ) : (
-                                            "Not applicable for Switch mode"
+                                            t("Not applicable for Switch mode")
                                         )}
                                     </Tooltip>
                                 }
                             />
                         </Form.Group>
                         <Form.Control.Feedback type="invalid">
-                            The BOTW update folder is required
+                            {t("The BOTW update folder is required")}
                         </Form.Control.Feedback>
                     </Col>
                     <Col>
                         <Form.Group
                             controlId="dlc_dir"
                             className={!this.state.wiiu && "d-none"}>
-                            <Form.Label>DLC Directory</Form.Label>
+                            <Form.Label>{t("DLC Directory")}</Form.Label>
                             <FolderInput
                                 value={this.state.dlc_dir}
                                 onChange={this.handleChange}
-                                placeholder={`Tip: should end in "0010", usually in Cemu's MLC folder`}
+                                placeholder={t(
+                                    'Tip: should end in "0010", usually in Cemu\'s MLC folder'
+                                )}
                                 isValid={true}
                                 overlay={
                                     <Tooltip>
-                                        (Optional) The folder containing the DLC files
-                                        for BOTW, version 3.0. The last folder should
-                                        usually be "0010", and if you use Cemu, it
-                                        should be in your "mlc01" folder, e.g.
+                                        {t(
+                                            '(Optional) The folder containing the DLC files for BOTW, version 3.0. The last folder should usually be "0010", and if you use Cemu, it should be in your "mlc01" folder, e.g.'
+                                        )}
                                         <br />
                                         <code>
                                             C:\Cemu\mlc01\usr\title\0005000C\101C9400\content\0010
@@ -350,15 +375,16 @@ class Settings extends React.Component {
                         <Form.Group
                             controlId="dlc_dir_nx"
                             className={this.state.wiiu && "d-none"}>
-                            <Form.Label>DLC Directory</Form.Label>
+                            <Form.Label>{t("DLC Directory")}</Form.Label>
                             <FolderInput
                                 value={this.state.dlc_dir_nx}
                                 onChange={this.handleChange}
                                 isValid={true}
                                 overlay={
                                     <Tooltip>
-                                        (Optional) The folder containing the DLC files
-                                        for BOTW, version 3.0.
+                                        {t(
+                                            "(Optional) The folder containing the DLC files for BOTW, version 3.0."
+                                        )}
                                         <br />
                                         <code>
                                             C:\Games\BOTW\01007EF00011F001\romfs
@@ -370,19 +396,17 @@ class Settings extends React.Component {
                         </Form.Group>
                     </Col>
                 </Row>
-                <h5>Options</h5>
+                <h5>{t("Options")}</h5>
                 <Row>
                     <Col>
                         <Form.Group controlId="lang">
-                            <Form.Label>Game Language</Form.Label>
+                            <Form.Label>{t("Game Language")}</Form.Label>
                             <OverlayTrigger
                                 overlay={
                                     <Tooltip>
-                                        The game language you play with. This will be
-                                        prioritized when attempting to merge text mods.
-                                        You must correctly fill out the base game and
-                                        update path settings, above, before this dropdown
-                                        populates.
+                                        {t(
+                                            "The game language you play with. This will be prioritized when attempting to merge text mods. You must correctly fill out the base game and update path settings, above, before this dropdown populates."
+                                        )}
                                     </Tooltip>
                                 }>
                                 <Form.Control
@@ -390,33 +414,34 @@ class Settings extends React.Component {
                                     value={this.state.lang}
                                     isValid={this.state.lang != ""}
                                     onChange={this.handleChange}>
-                                    <option value={""}>Select a language</option>
+                                    <option value={""}>{t("Select a language")}</option>
                                     {this.state.languages.map(lang => (
                                         <option value={lang} key={lang}>
-                                            {LANGUAGE_MAP[lang]}
+                                            {t(LANGUAGE_MAP[lang] || lang)}
                                         </option>
                                     ))}
                                 </Form.Control>
                             </OverlayTrigger>
                             <Form.Control.Feedback type="invalid">
-                                You must select a game language
+                                {t("You must select a game language")}
                             </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group controlId="store_dir">
-                            <Form.Label>BCML Data Directory</Form.Label>
+                            <Form.Label>{t("BCML Data Directory")}</Form.Label>
                             <FolderInput
                                 value={this.state.store_dir}
                                 onChange={this.handleChange}
                                 isValid={this.state.store_dir != ""}
                                 overlay={
                                     <Tooltip>
-                                        The folder where BCML will store internal files
-                                        like installed mods, merged data, and backups.
+                                        {t(
+                                            "The folder where BCML will store internal files like installed mods, merged data, and backups."
+                                        )}
                                     </Tooltip>
                                 }
                             />
                             <Form.Control.Feedback type="invalid">
-                                The BCML data folder is required
+                                {t("The BCML data folder is required")}
                             </Form.Control.Feedback>
                         </Form.Group>
                         <Form.Group
@@ -424,53 +449,56 @@ class Settings extends React.Component {
                             className={
                                 (!this.state.wiiu || !this.state.no_cemu) && "d-none"
                             }>
-                            <Form.Label>Merged Export Directory</Form.Label>
+                            <Form.Label>{t("Merged Export Directory")}</Form.Label>
                             <FolderInput
                                 value={this.state.export_dir}
                                 onChange={this.handleChange}
                                 isValid={true}
                                 overlay={
                                     <Tooltip>
-                                        (Optional) Where to automatically export the
-                                        final merged mod pack.<br />
+                                        {t(
+                                            "(Optional) Where to automatically export the final merged mod pack."
+                                        )}
                                         <br />
-                                        WARNING: The contents of this folder will be
-                                        deleted. Do not set this to a folder whose
-                                        contents you wish to retain.
+                                        <br />
+                                        {t(
+                                            "WARNING: The contents of this folder will be deleted. Do not set this to a folder whose contents you wish to retain."
+                                        )}
                                     </Tooltip>
                                 }
-                                placeholder="Optional"
+                                placeholder={t("Optional")}
                             />
                         </Form.Group>
                         <Form.Group
                             controlId="export_dir_nx"
                             className={this.state.wiiu && "d-none"}>
-                            <Form.Label>Merged Export Directory</Form.Label>
+                            <Form.Label>{t("Merged Export Directory")}</Form.Label>
                             <FolderInput
                                 value={this.state.export_dir_nx}
                                 onChange={this.handleChange}
                                 isValid={true}
                                 overlay={
                                     <Tooltip>
-                                        (Optional) Where to automatically export the
-                                        final merged mod pack.
+                                        {t(
+                                            "(Optional) Where to automatically export the final merged mod pack."
+                                        )}
                                     </Tooltip>
                                 }
-                                placeholder="Optional"
+                                placeholder={t("Optional")}
                             />
                         </Form.Group>
                         {window.navigator.userAgent.includes("Windows") && (
                             <>
-                                <h5>Create BCML Shortcuts</h5>
+                                <h5>{t("Create BCML Shortcuts")}</h5>
                                 <Button
                                     variant="success"
                                     onClick={() => this.makeShortcut(true)}>
-                                    Desktop
+                                    {t("Desktop")}
                                 </Button>{" "}
                                 <Button
                                     variant="success"
                                     onClick={() => this.makeShortcut(false)}>
-                                    Start Menu
+                                    {t("Start Menu")}
                                 </Button>
                             </>
                         )}
@@ -481,13 +509,15 @@ class Settings extends React.Component {
                             <OverlayTrigger
                                 overlay={
                                     <Tooltip>
-                                        Turn on Switch mode instead of Wii U/Cemu mode
+                                        {t(
+                                            "Turn on Switch mode instead of Wii U/Cemu mode"
+                                        )}
                                     </Tooltip>
                                 }
                                 placement={"left"}>
                                 <Form.Check
                                     type="checkbox"
-                                    label="Use Switch mode"
+                                    label={t("Use Switch mode")}
                                     checked={!this.state.wiiu}
                                     onChange={e =>
                                         this.setState({
@@ -502,18 +532,16 @@ class Settings extends React.Component {
                             <OverlayTrigger
                                 overlay={
                                     <Tooltip>
-                                        Allows you to use BCML without Cemu on your PC.
-                                        If you do this, you will need to be careful
-                                        about getting the right directories for update
-                                        and DLC files. You will be able to merge
-                                        installed mods with Export.
+                                        {t(
+                                            "Allows you to use BCML without Cemu on your PC. If you do this, you will need to be careful about getting the right directories for update and DLC files. You will be able to merge installed mods with Export."
+                                        )}
                                     </Tooltip>
                                 }
                                 placement={"left"}>
                                 <Form.Check
                                     type="checkbox"
                                     disabled={!this.state.wiiu}
-                                    label="Use BCML without a Cemu installation"
+                                    label={t("Use BCML without a Cemu installation")}
                                     checked={this.state.no_cemu}
                                     onChange={this.handleChange}
                                 />
@@ -523,17 +551,17 @@ class Settings extends React.Component {
                             <OverlayTrigger
                                 overlay={
                                     <Tooltip>
-                                        To save disk space, BCML can optionally remove
-                                        unmodified files contained in the SARC files in
-                                        graphic pack mods. This disables the Reprocess
-                                        button, so it may not be desirable for mod
-                                        developers.
+                                        {t(
+                                            "To save disk space, BCML can optionally remove unmodified files contained in the SARC files in graphic pack mods. This disables the Reprocess button, so it may not be desirable for mod developers."
+                                        )}
                                     </Tooltip>
                                 }
                                 placement={"left"}>
                                 <Form.Check
                                     type="checkbox"
-                                    label="Clean SARCs in graphic packs to save space"
+                                    label={t(
+                                        "Clean SARCs in graphic packs to save space"
+                                    )}
                                     checked={this.state.strip_gfx}
                                     onChange={this.handleChange}
                                 />
@@ -543,15 +571,15 @@ class Settings extends React.Component {
                             <OverlayTrigger
                                 overlay={
                                     <Tooltip>
-                                        Don't estimate proper RSTB values for merged
-                                        files. Deletes entries which cannot be
-                                        calculated instead.
+                                        {t(
+                                            "Don't estimate proper RSTB values for merged files. Deletes entries which cannot be calculated instead."
+                                        )}
                                     </Tooltip>
                                 }
                                 placement={"left"}>
                                 <Form.Check
                                     type="checkbox"
-                                    label="Disable RSTB estimation on merged files"
+                                    label={t("Disable RSTB estimation on merged files")}
                                     checked={this.state.no_guess}
                                     onChange={this.handleChange}
                                 />
@@ -561,17 +589,15 @@ class Settings extends React.Component {
                             <OverlayTrigger
                                 overlay={
                                     <Tooltip>
-                                        By default, BCML uses directory junctions or
-                                        symlinks to connect installed mods to their
-                                        merged destination. Use this option to disable
-                                        this if it doesn't work and just copy the
-                                        files instead.
+                                        {t(
+                                            "By default, BCML uses directory junctions or symlinks to connect installed mods to their merged destination. Use this option to disable this if it doesn't work and just copy the files instead."
+                                        )}
                                     </Tooltip>
                                 }
                                 placement={"left"}>
                                 <Form.Check
                                     type="checkbox"
-                                    label="Disable links for master mod"
+                                    label={t("Disable links for master mod")}
                                     checked={this.state.no_hardlinks}
                                     onChange={this.handleChange}
                                 />
@@ -581,15 +607,15 @@ class Settings extends React.Component {
                             <OverlayTrigger
                                 overlay={
                                     <Tooltip>
-                                        By default, BCML will notify you when it detects
-                                        an updated version is available. Check this to
-                                        turn that off.
+                                        {t(
+                                            "By default, BCML will notify you when it detects an updated version is available. Check this to turn that off."
+                                        )}
                                     </Tooltip>
                                 }
                                 placement={"left"}>
                                 <Form.Check
                                     type="checkbox"
-                                    label="Disable BCML update notification"
+                                    label={t("Disable BCML update notification")}
                                     checked={this.state.suppress_update}
                                     onChange={this.handleChange}
                                 />
@@ -599,14 +625,15 @@ class Settings extends React.Component {
                             <OverlayTrigger
                                 overlay={
                                     <Tooltip>
-                                        If checked, BCML will show a changelog popup
-                                        after updating to a new version.
+                                        {t(
+                                            "If checked, BCML will show a changelog popup after updating to a new version."
+                                        )}
                                     </Tooltip>
                                 }
                                 placement={"left"}>
                                 <Form.Check
                                     type="checkbox"
-                                    label="Show changelog after update"
+                                    label={t("Show changelog after update")}
                                     checked={this.state.changelog}
                                     onChange={this.handleChange}
                                 />
@@ -617,16 +644,15 @@ class Settings extends React.Component {
                                 <OverlayTrigger
                                     overlay={
                                         <Tooltip>
-                                            By default, BCML will attempt to use the
-                                            system installation of 7z. If this is a
-                                            problem, you can force BCML to use the
-                                            bundled copy.
+                                            {t(
+                                                "By default, BCML will attempt to use the system installation of 7z. If this is a problem, you can force BCML to use the bundled copy."
+                                            )}
                                         </Tooltip>
                                     }
                                     placement={"left"}>
                                     <Form.Check
                                         type="checkbox"
-                                        label="Force use bundled 7z"
+                                        label={t("Force use bundled 7z")}
                                         checked={this.state.force_7z}
                                         onChange={this.handleChange}
                                     />

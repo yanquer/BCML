@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import {
     Button,
     ButtonGroup,
@@ -111,7 +112,7 @@ class Mods extends React.Component {
                 this.props.onError({
                     short:
                         err.short +
-                        " The setup wizard will be relaunched in 5 seconds.",
+                        t(" The setup wizard will be relaunched in 5 seconds."),
                     error_text: err.error_text
                 });
                 setTimeout(() => (window.location = "index.html?firstrun=true"), 5000);
@@ -121,7 +122,7 @@ class Mods extends React.Component {
     handleDrop = async e => {
         e.preventDefault();
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            this.props.onProgress("Processing Drag-and-Drop");
+            this.props.onProgress(t("Processing Drag-and-Drop"));
             for (let f of e.dataTransfer.files) {
                 let reader = new FileReader();
                 reader.readAsArrayBuffer(f);
@@ -129,12 +130,13 @@ class Mods extends React.Component {
                     if (reader.result.byteLength > 52428800) {
                         this.props.onCancel();
                         this.props.onError({
-                            short: "You can only drag and drop files under 50 MB. Use the floating Install button instead.",
-                            error_text:
-                                "Due to technical limitations, files over 50 MB are not supported\n" +
-                                `for drag-and-drop install. This file is ${
-                                    reader.result.byteLength / 1024 / 1024
-                                } MB. Please use the Install button (big floating icon) instead.`
+                            short: t(
+                                "You can only drag and drop files under 50 MB. Use the floating Install button instead."
+                            ),
+                            error_text: t(
+                                "Due to technical limitations, files over 50 MB are not supported for drag-and-drop install. This file is {size} MB. Please use the Install button (big floating icon) instead.",
+                                { size: reader.result.byteLength / 1024 / 1024 }
+                            )
                         });
                         return;
                     }
@@ -174,7 +176,12 @@ class Mods extends React.Component {
                 tasks.push(() => pywebview.api.explore({ mod: mod }));
             } else {
                 tasks.push(async () => {
-                    this.props.onProgress(`${verb}ing ${mod.name}`);
+                    this.props.onProgress(
+                        t("{action} {name}", {
+                            action: t(`${verb}ing`),
+                            name: mod.name
+                        })
+                    );
                     try {
                         const res = await pywebview.api.mod_action({
                             mod,
@@ -229,15 +236,16 @@ class Mods extends React.Component {
         if (["enable", "update", "explore"].includes(action)) queue();
         else
             this.props.onConfirm(
-                `Are you sure you want to ${action} ${this.state.selectedMods
-                    .map(m => m.name)
-                    .join(", ")}?`,
+                t("Are you sure you want to {action} {names}?", {
+                    action: t(action[0].toUpperCase() + action.slice(1)),
+                    names: this.state.selectedMods.map(m => m.name).join(", ")
+                }),
                 queue
             );
     };
 
     handleRemerge = merger => {
-        this.props.onProgress(`Remerging ${merger}`);
+        this.props.onProgress(t("Remerging {merger}", { merger: t(merger) }));
         pywebview.api
             .remerge({ name: merger })
             .then(res => {
@@ -256,9 +264,9 @@ class Mods extends React.Component {
 
     uninstallAll = () => {
         this.props.onConfirm(
-            "Are you sure you want to uninstall all of your mods?",
+            t("Are you sure you want to uninstall all of your mods?"),
             () => {
-                this.props.onProgress("Uninstalling All Mods");
+                this.props.onProgress(t("Uninstalling All Mods"));
                 pywebview.api
                     .uninstall_all()
                     .then(res => {
@@ -277,7 +285,7 @@ class Mods extends React.Component {
     };
 
     applyQueue = async () => {
-        this.props.onProgress("Applying Changes");
+        this.props.onProgress(t("Applying Changes"));
         let installs = [];
         let moves = [];
         for (const [i, mod] of this.context.mods.slice().reverse().entries()) {
@@ -360,7 +368,7 @@ class Mods extends React.Component {
                                 />
                             ) : (
                                 <div className="text-secondary m-2 text-center">
-                                    No mods installed
+                                    {t("No mods installed")}
                                 </div>
                             )
                         ) : (
@@ -374,10 +382,12 @@ class Mods extends React.Component {
                                 size="xs"
                                 variant="success"
                                 className="btn-apply position-fixed"
-                                title="Apply pending load order changes and queued installs"
+                                title={t(
+                                    "Apply pending load order changes and queued installs"
+                                )}
                                 onClick={this.applyQueue}>
                                 <i className="material-icons">check</i>
-                                <span>Apply Pending Changes</span>
+                                <span>{t("Apply Pending Changes")}</span>
                             </Button>
                         )}
                         <div className="list-actions d-flex pt-1">
@@ -385,16 +395,15 @@ class Mods extends React.Component {
                                 <OverlayTrigger
                                     overlay={
                                         <Tooltip>
-                                            {"Current sort priority:\n" +
+                                            {t("Current sort priority:\n") +
                                                 (this.state.sortReverse
-                                                    ? "highest to lowest"
-                                                    : "lowest to highest") +
-                                                "\nClick to change to:" +
+                                                    ? t("highest to lowest")
+                                                    : t("lowest to highest")) +
+                                                t("\nClick to change to:") +
                                                 (this.state.sortReverse
-                                                    ? "lowest to highest"
-                                                    : "highest to lowest") +
-                                                " (Ctrl+O)"
-                                            }
+                                                    ? t("lowest to highest")
+                                                    : t("highest to lowest")) +
+                                                " (Ctrl+O)"}
                                         </Tooltip>
                                     }>
                                     <Button
@@ -420,8 +429,8 @@ class Mods extends React.Component {
                                     overlay={
                                         <Tooltip>
                                             {(this.state.showHandle
-                                                ? "Hide sort handles"
-                                                : "Show sort handles") + " (Ctrl+S)"}
+                                                ? t("Hide sort handles")
+                                                : t("Show sort handles")) + " (Ctrl+S)"}
                                         </Tooltip>
                                     }>
                                     <Button
@@ -438,8 +447,9 @@ class Mods extends React.Component {
                                     overlay={
                                         <Tooltip>
                                             {(this.state.showDisabled
-                                                ? "Hide disabled mods"
-                                                : "Show disabled mods") + " (Ctrl+H)"}
+                                                ? t("Hide disabled mods")
+                                                : t("Show disabled mods")) +
+                                                " (Ctrl+H)"}
                                         </Tooltip>
                                     }>
                                     <Button
@@ -459,7 +469,9 @@ class Mods extends React.Component {
                             </ButtonGroup>
                             <Dropdown as={ButtonGroup} size="xs">
                                 <OverlayTrigger
-                                    overlay={<Tooltip>Remerge (Ctrl+M)</Tooltip>}>
+                                    overlay={
+                                        <Tooltip>{t("Remerge (Ctrl+M)")}</Tooltip>
+                                    }>
                                     <Button
                                         variant="secondary"
                                         onClick={() => this.handleRemerge("all")}>
@@ -478,7 +490,8 @@ class Mods extends React.Component {
                                             <Dropdown.Item
                                                 key={m}
                                                 onClick={() => this.handleRemerge(m)}>
-                                                Remerge {m}
+                                                {t("Remerge ")}
+                                                {t(m)}
                                             </Dropdown.Item>
                                         ))}
                                 </Dropdown.Menu>
@@ -486,7 +499,9 @@ class Mods extends React.Component {
                             <ButtonGroup size="xs">
                                 <OverlayTrigger
                                     overlay={
-                                        <Tooltip>Backup and restore (Ctrl+B)</Tooltip>
+                                        <Tooltip>
+                                            {t("Backup and restore (Ctrl+B)")}
+                                        </Tooltip>
                                     }>
                                     <Button
                                         variant="secondary"
@@ -495,14 +510,17 @@ class Mods extends React.Component {
                                     </Button>
                                 </OverlayTrigger>
                                 <OverlayTrigger
-                                    overlay={<Tooltip>Profiles (Ctrl+F)</Tooltip>}>
+                                    overlay={
+                                        <Tooltip>{t("Profiles (Ctrl+F)")}</Tooltip>
+                                    }>
                                     <Button
                                         variant="secondary"
                                         onClick={this.props.onProfile}>
                                         <i className="material-icons">dynamic_feed</i>
                                     </Button>
                                 </OverlayTrigger>
-                                <OverlayTrigger overlay={<Tooltip>Export</Tooltip>}>
+                                <OverlayTrigger
+                                    overlay={<Tooltip>{t("Export")}</Tooltip>}>
                                     <Button
                                         variant="secondary"
                                         onClick={this.props.onExport}
@@ -515,7 +533,7 @@ class Mods extends React.Component {
                                 <OverlayTrigger
                                     overlay={
                                         <Tooltip>
-                                            Uninstall all mods (Ctrl+Shift+U)
+                                            {t("Uninstall all mods (Ctrl+Shift+U)")}
                                         </Tooltip>
                                     }>
                                     <Button
@@ -531,7 +549,9 @@ class Mods extends React.Component {
                                     <OverlayTrigger
                                         overlay={
                                             <Tooltip>
-                                                Launch Breath of the Wild (Ctrl+L)
+                                                {t(
+                                                    "Launch Breath of the Wild (Ctrl+L)"
+                                                )}
                                             </Tooltip>
                                         }>
                                         <Button
@@ -580,10 +600,10 @@ class Mods extends React.Component {
                                     />
                                     <Dropdown.Menu>
                                         <Dropdown.Item onClick={this.launchNoMod}>
-                                            Launch without mods
+                                            {t("Launch without mods")}
                                         </Dropdown.Item>
                                         <Dropdown.Item onClick={this.launchCemu}>
-                                            Launch Cemu without starting game
+                                            {t("Launch Cemu without starting game")}
                                         </Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>
@@ -600,7 +620,7 @@ class Mods extends React.Component {
                 </div>
                 <a
                     className="fab"
-                    title="Install (Ctrl+I)"
+                    title={t("Install (Ctrl+I)")}
                     onClick={() => this.setState({ showInstall: true })}>
                     <i className="material-icons">add</i>
                 </a>

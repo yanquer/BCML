@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { Badge, Button, Spinner } from "react-bootstrap";
 
 import ModContext from "./Context.jsx";
@@ -86,89 +87,93 @@ class ModInfo extends React.Component {
                                         this.props.mod.name
                                     )
                                 ) : (
-                                    "Welcome to BCML"
+                                    t("Welcome to BCML")
                                 )}
                             </h1>
                             {this.props.mod && this.props.mod.disabled && (
-                                <Badge variant="danger">DISABLED</Badge>
+                                <Badge variant="danger">{t("DISABLED")}</Badge>
                             )}
                         </div>
                     </div>
                     <ReactMarkdown className="mod-descrip">
                         {this.props.mod
-                            ? this.state.desc || "No description"
-                            : "No mod selected"}
+                            ? this.state.desc || t("No description")
+                            : t("No mod selected")}
                     </ReactMarkdown>
                     <div className="mod-actions">
                         <Button
                             variant="primary"
                             size="sm"
-                            title="Explore (Ctrl+X)"
+                            title={t("Explore (Ctrl+X)")}
                             disabled={!this.props.mod || this.props.multi}
                             onClick={() => this.props.onAction("explore")}>
                             <i className="material-icons">folder_open</i>{" "}
-                            <span>Explore</span>
+                            <span>{t("Explore")}</span>
                         </Button>
                         {this.props.mod &&
                             (this.props.mod.disabled ? (
                                 <Button
                                     variant="success"
                                     size="sm"
-                                    title="Enable (Ctrl+E)"
+                                    title={t("Enable (Ctrl+E)")}
                                     disabled={!this.props.mod}
                                     onClick={() => this.props.onAction("enable")}>
                                     <i className="material-icons">check_box</i>{" "}
-                                    <span>Enable</span>
+                                    <span>{t("Enable")}</span>
                                 </Button>
                             ) : (
                                 <Button
                                     variant="warning"
                                     size="sm"
-                                    title="Disable (Ctrl+D)"
+                                    title={t("Disable (Ctrl+D)")}
                                     disabled={!this.props.mod}
                                     onClick={() => this.props.onAction("disable")}>
                                     <i className="material-icons">block</i>{" "}
-                                    <span>Disable</span>
+                                    <span>{t("Disable")}</span>
                                 </Button>
                             ))}
                         <Button
                             variant="info"
                             size="sm"
-                            title="Update"
+                            title={t("Update")}
                             disabled={!this.props.mod || this.props.multi}
                             onClick={() => this.props.onAction("update")}>
-                            <i className="material-icons">update</i> <span>Update</span>
+                            <i className="material-icons">update</i>{" "}
+                            <span>{t("Update")}</span>
                         </Button>
                         {this.state.processed && !this.context.settings?.strip_gfx && (
                             <Button
                                 variant="secondary"
                                 size="sm"
-                                title="Reprocess (Ctrl+P)"
+                                title={t("Reprocess (Ctrl+P)")}
                                 disabled={!this.props.mod || this.props.multi}
                                 onClick={() => this.props.onAction("reprocess")}>
                                 <i className="material-icons">refresh</i>{" "}
-                                <span>Reprocess</span>
+                                <span>{t("Reprocess")}</span>
                             </Button>
                         )}
                         <Button
                             variant="danger"
                             size="sm"
-                            title="Uninstall (Ctrl+U)"
+                            title={t("Uninstall (Ctrl+U)")}
                             disabled={!this.props.mod}
                             onClick={() => this.props.onAction("uninstall")}>
                             <i className="material-icons">delete</i>{" "}
-                            <span>Uninstall</span>
+                            <span>{t("Uninstall")}</span>
                         </Button>
                     </div>
                     <div className="mod-details">
                         {this.props.mod ? (
                             <>
                                 <span>
-                                    <strong>Priority:</strong> {this.props.mod.priority}
+                                    <strong>{t("Priority:")}</strong>{" "}
+                                    {this.props.mod.priority}
                                 </span>
                                 <span>
-                                    <strong>Changes:</strong>{" "}
-                                    {this.state.changes.join(", ")}
+                                    <strong>{t("Changes:")}</strong>{" "}
+                                    {this.state.changes
+                                        .map(change => t(change))
+                                        .join(", ")}
                                 </span>
                                 <span
                                     style={{
@@ -176,22 +181,22 @@ class ModInfo extends React.Component {
                                         maxWidth: "100%",
                                         overflow: "hidden"
                                     }}>
-                                    <strong>Path:</strong> {this.props.mod.path}
+                                    <strong>{t("Path:")}</strong> {this.props.mod.path}
                                 </span>
                                 {this.state.url && (
                                     <span>
-                                        <strong>URL:</strong>{" "}
+                                        <strong>{t("URL:")}</strong>{" "}
                                         <a href={this.state.url} target="_blank">
                                             {this.state.url}
                                         </a>
                                     </span>
                                 )}
                                 <span>
-                                    <strong>Date:</strong> {this.props.mod.date}
+                                    <strong>{t("Date:")}</strong> {this.props.mod.date}
                                 </span>
                             </>
                         ) : (
-                            "No mod selected"
+                            t("No mod selected")
                         )}
                     </div>
                 </div>

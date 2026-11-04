@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { Alert, Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 
 import React from "react";
@@ -61,7 +62,7 @@ class SelectsDialog extends React.Component {
                 )
         ) {
             this.setState({
-                error: "One or more required options have not been selected."
+                error: t("One or more required options have not been selected.")
             });
         } else {
             this.setState({ error: null });
@@ -76,9 +77,10 @@ class SelectsDialog extends React.Component {
                 scrollable={true}
                 onHide={this.props.onClose}
                 class="selects">
-                <Modal.Header closeButton>
+                <Modal.Header closeButton closeLabel={t("Close")}>
                     <Modal.Title>
-                        Select Options for {this.props.mod && this.props.mod.name}
+                        {t("Select Options for ")}
+                        {this.props.mod && this.props.mod.name}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -86,21 +88,23 @@ class SelectsDialog extends React.Component {
                         <Alert variant="danger">{this.state.error}</Alert>
                     )}
                     <p>
-                        {this.props.mod && this.props.mod.name} has customization
-                        options. Please select the options you would like to use below.
+                        {this.props.mod && this.props.mod.name}
+                        {t(
+                            " has customization options. Please select the options you would like to use below."
+                        )}
                     </p>
                     <Form>
                         {this.props.mod &&
                             this.props.mod.options.multi &&
                             Object.keys(this.props.mod.options.multi).length > 0 && (
                                 <>
-                                    <h5>Multiple Choice Options</h5>
+                                    <h5>{t("Multiple Choice Options")}</h5>
                                     {this.props.mod.options.multi.map(m => (
                                         <Form.Group key={m.folder}>
                                             <OverlayTrigger
                                                 overlay={
                                                     <Tooltip>
-                                                        {m.desc || "No description"}
+                                                        {m.desc || t("No description")}
                                                     </Tooltip>
                                                 }>
                                                 <Form.Check
@@ -121,7 +125,7 @@ class SelectsDialog extends React.Component {
                             this.props.mod.options.single &&
                             Object.keys(this.props.mod.options.single).length > 0 && (
                                 <>
-                                    <h5>Single Choice Options</h5>
+                                    <h5>{t("Single Choice Options")}</h5>
                                     {this.props.mod.options.single.map(s => (
                                         <div key={s.name} className="radio-group my-2">
                                             <strong>
@@ -129,7 +133,7 @@ class SelectsDialog extends React.Component {
                                                 {s.required && (
                                                     <span
                                                         className="text-danger"
-                                                        title="Required">
+                                                        title={t("Required")}>
                                                         *
                                                     </span>
                                                 )}
@@ -145,7 +149,7 @@ class SelectsDialog extends React.Component {
                                                         overlay={
                                                             <Tooltip>
                                                                 {opt.desc ||
-                                                                    "No description"}
+                                                                    t("No description")}
                                                             </Tooltip>
                                                         }>
                                                         <Form.Check
@@ -166,10 +170,10 @@ class SelectsDialog extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={this.submit}>
-                        OK
+                        {t("OK")}
                     </Button>
                     <Button variant="secondary" onClick={this.props.onClose}>
-                        Close
+                        {t("Close")}
                     </Button>
                 </Modal.Footer>
             </Modal>

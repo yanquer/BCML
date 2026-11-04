@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import OptionsDialog from "./Options.jsx";
@@ -6,9 +7,9 @@ import React from "react";
 import ReactSortable from "react-sortablejs";
 import Spinner from "react-bootstrap/Spinner";
 
-const MOD_STATE_ERROR = 'error';
-const MOD_STATE_DOWNLOADING = 'downloading';
-const MOD_STATE_INSTALLABLE = 'installable';
+const MOD_STATE_ERROR = "error";
+const MOD_STATE_DOWNLOADING = "downloading";
+const MOD_STATE_INSTALLABLE = "installable";
 
 class InstallModal extends React.Component {
     constructor(props) {
@@ -23,16 +24,36 @@ class InstallModal extends React.Component {
         this.setOptions = this.setOptions.bind(this);
         this.allModsReady = this.allModsReady.bind(this);
         window.errorOneClick = (mod, error) =>
-            this.setState({ mods: { ...this.state.mods, [mod]: { state: MOD_STATE_ERROR, error } } }, () => {
-                this.props.onOneClick()
-            })
+            this.setState(
+                {
+                    mods: {
+                        ...this.state.mods,
+                        [mod]: { state: MOD_STATE_ERROR, error }
+                    }
+                },
+                () => {
+                    this.props.onOneClick();
+                }
+            );
         window.prepareOneClick = mod =>
-            this.setState({ mods: { ...this.state.mods, [mod]: { state: MOD_STATE_DOWNLOADING } } }, () =>
-                this.props.onOneClick()
+            this.setState(
+                {
+                    mods: {
+                        ...this.state.mods,
+                        [mod]: { state: MOD_STATE_DOWNLOADING }
+                    }
+                },
+                () => this.props.onOneClick()
             );
         window.oneClick = mod =>
-            this.setState({ mods: { ...this.state.mods, [mod]: { state: MOD_STATE_INSTALLABLE } } }, () =>
-                this.props.onOneClick()
+            this.setState(
+                {
+                    mods: {
+                        ...this.state.mods,
+                        [mod]: { state: MOD_STATE_INSTALLABLE }
+                    }
+                },
+                () => this.props.onOneClick()
             );
     }
 
@@ -78,32 +99,36 @@ class InstallModal extends React.Component {
     }
 
     allModsReady() {
-        return Object.keys(this.state.mods).length && Object.values(this.state.mods).every(v => v.state == MOD_STATE_INSTALLABLE)
+        return (
+            Object.keys(this.state.mods).length &&
+            Object.values(this.state.mods).every(v => v.state == MOD_STATE_INSTALLABLE)
+        );
     }
 
     render() {
         return (
             <Modal show={this.props.show} onHide={this.props.onClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Install Mod</Modal.Title>
+                <Modal.Header closeButton closeLabel={t("Close")}>
+                    <Modal.Title>{t("Install Mod")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p>
-                        Select a mod or mods to install (must be a BNP or
-                        graphic pack). You can select a <code>.bnp</code>,{" "}
-                        <code>.zip</code>, <code>.rar</code>, or{" "}
-                        <code>.7z</code> file or the <code>rules.txt</code> or{" "}
-                        <code>info.json</code> of an unpacked mod.
+                        {t(
+                            "Select a mod or mods to install (must be a BNP or graphic pack). You can select a "
+                        )}
+                        <code>.bnp</code>, <code>.zip</code>, <code>.rar</code>
+                        {t(", or")} <code>.7z</code>
+                        {t(" file or the ")}
+                        <code>rules.txt</code>
+                        {t(" or")} <code>info.json</code>
+                        {t(" of an unpacked mod.")}
                     </p>
                     <Button size="sm" onClick={() => this.browse()}>
-                        Browse...
+                        {t("Browse...")}
                     </Button>
                     {Object.keys(this.state.mods).length > 0 && (
                         <div className="mt-2">
-                            <strong>
-                                Mod{Object.keys(this.state.mods).length > 1 && "s"} to
-                                install
-                            </strong>
+                            <strong>{t("Mods to install")}</strong>
                             <ReactSortable
                                 id="install-queue"
                                 onChange={order => {
@@ -124,24 +149,24 @@ class InstallModal extends React.Component {
                                         <div className="flex-grow-1">
                                             {mod.split(/[\\\/]/).slice(-1)[0]}
                                         </div>
-                                        <div className="wait-mod" hidden={data.state != MOD_STATE_DOWNLOADING}>
-                                            <Spinner animation="border" size="sm"/>
+                                        <div
+                                            className="wait-mod"
+                                            hidden={
+                                                data.state != MOD_STATE_DOWNLOADING
+                                            }>
+                                            <Spinner animation="border" size="sm" />
                                         </div>
-                                        <div className="err-mod" hidden={data.state != MOD_STATE_ERROR}>
-                                            <a
-                                                onClick={() =>
-                                                    this.showModError(mod)
-                                                }>
+                                        <div
+                                            className="err-mod"
+                                            hidden={data.state != MOD_STATE_ERROR}>
+                                            <a onClick={() => this.showModError(mod)}>
                                                 <i className="material-icons text-danger">
                                                     report
                                                 </i>
                                             </a>
                                         </div>
                                         <div className="rem-mod">
-                                            <a
-                                                onClick={() =>
-                                                    this.removeMod(mod)
-                                                }>
+                                            <a onClick={() => this.removeMod(mod)}>
                                                 <i className="material-icons text-danger">
                                                     remove_circle
                                                 </i>
@@ -165,7 +190,7 @@ class InstallModal extends React.Component {
                                 onHide={this.setOptions}
                             />
                         }>
-                        <Button variant="info" title="Advanced Options">
+                        <Button variant="info" title={t("Advanced Options")}>
                             <i
                                 className="material-icons"
                                 style={{ verticalAlign: "middle" }}>
@@ -174,10 +199,8 @@ class InstallModal extends React.Component {
                         </Button>
                     </OverlayTrigger>
                     <div className="flex-grow-1">{""}</div>
-                    <Button
-                        variant="secondary"
-                        onClick={this.handleClose.bind(this)}>
-                        Close
+                    <Button variant="secondary" onClick={this.handleClose.bind(this)}>
+                        {t("Close")}
                     </Button>
                     <Button
                         variant="primary"
@@ -189,7 +212,7 @@ class InstallModal extends React.Component {
                             this.resetDialog();
                         }}
                         disabled={!this.allModsReady()}>
-                        Queue
+                        {t("Queue")}
                     </Button>
                     <Button
                         variant="success"
@@ -203,7 +226,7 @@ class InstallModal extends React.Component {
                             }, 333);
                         }}
                         disabled={!this.allModsReady()}>
-                        Install
+                        {t("Install")}
                     </Button>
                 </Modal.Footer>
             </Modal>

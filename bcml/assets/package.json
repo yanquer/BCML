@@ -5,6 +5,7 @@
     "main": "bootstrap.bundle.min.js",
     "scripts": {
         "test": "webpack --watch --mode development",
+        "test:i18n": "node tests/i18n.cjs",
         "build": "webpack --mode production"
     },
     "keywords": [],

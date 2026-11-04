@@ -592,6 +592,7 @@ DEFAULT_SETTINGS = {
     "dark_theme": False,
     "no_guess": False,
     "lang": "",
+    "ui_language": "auto",
     "no_cemu": False,
     "wiiu": True,
     "no_hardlinks": False,

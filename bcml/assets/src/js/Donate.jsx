@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import React from "react";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 
@@ -19,14 +20,14 @@ function DonateWidget() {
                 </Button>
             </li>
             <li>
-                <OverlayTrigger overlay={<Tooltip>Donate Bitcoin</Tooltip>}>
+                <OverlayTrigger overlay={<Tooltip>{t("Donate Bitcoin")}</Tooltip>}>
                     <>
                         <BtcIcon /> <code>392YEGQ8WybkRSg4oyeLf7Pj2gQNhPcWoa</code>
                     </>
                 </OverlayTrigger>
             </li>
             <li>
-                <OverlayTrigger overlay={<Tooltip>Donate Ethereum</Tooltip>}>
+                <OverlayTrigger overlay={<Tooltip>{t("Donate Ethereum")}</Tooltip>}>
                     <>
                         <EthIcon />{" "}
                         <code>0xbA189996b1eF94Bd93Cd097a4094Fbd9e3500455</code>
@@ -34,7 +35,7 @@ function DonateWidget() {
                 </OverlayTrigger>
             </li>
             <li>
-                <OverlayTrigger overlay={<Tooltip>Donate Graph</Tooltip>}>
+                <OverlayTrigger overlay={<Tooltip>{t("Donate Graph")}</Tooltip>}>
                     <>
                         <GrtIcon />{" "}
                         <code>0x5f400A54D264185a70CFFd969C8d64b9d209361d</code>

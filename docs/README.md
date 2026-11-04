@@ -1,3 +1,6 @@
+> For this fork's current setup instructions and change history, see the
+> [repository README](../README.md) and [CHANGELOG](../CHANGELOG.md).
+
 # NOTICE: BCML has been discontinued
 
 BCML is a very old, very inefficient solution for overall mod management, which
@@ -206,6 +209,18 @@ ZIP, 7z and RAR archives through the system `7zz` or `7z` executable.
 This CLI installation does not register `bcml://` links or create Windows desktop
 and Start Menu shortcuts on macOS. Import downloaded mods manually. The supported
 update workflow is to update the source checkout and run `uv sync --locked`.
+
+## Interface Language / 界面语言
+
+BCML 的界面语言默认跟随系统，支持简体中文和 English。在“设置 → 界面语言”
+（Settings → Interface Language）中可以切换，立即生效；点击保存后，下次启动
+仍使用此选择。首次设置向导使用相同的语言设置。
+
+“游戏文本语言”（Game Language）独立控制文本模组的合并优先语言，不受界面语言
+影响。模组名称、作者提供的描述、程序内帮助和原始错误详情保留原文。
+
+修改界面词条后，在 `bcml/assets` 运行 `npm run test:i18n` 和 `npm run build`。
+程序加载的是构建后的 `scripts/bundle.js`，仅修改 JSX 不会更新运行界面。
 
 ## Usage and Troubleshooting
 
