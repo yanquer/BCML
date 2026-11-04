@@ -187,6 +187,14 @@ impl Settings {
                 return Some(self.cemu_dir.join("graphicPacks/BreathOfTheWild_BCML"));
                 #[cfg(target_os = "linux")]
                 return Some("~/.local/share/cemu/graphicPacks/BreathOfTheWild_BCML".into());
+                // macOS 原生 Cemu 的图形包目录位于用户数据目录，而不是应用包内部。
+                #[cfg(target_os = "macos")]
+                return if self.export_dir.as_os_str().is_empty() {
+                    dirs2::data_dir()
+                        .map(|path| path.join("Cemu/graphicPacks/BreathOfTheWild_BCML"))
+                } else {
+                    Some(self.export_dir.clone())
+                };
             }
         } else {
             Some(self.export_dir_nx.clone())
@@ -271,10 +279,12 @@ pub static TMP_SETTINGS: Lazy<Arc<RwLock<Settings>>> = Lazy::new(|| {
 
 pub static DATA_DIR: Lazy<PathBuf> = Lazy::new(|| {
     if std::env::args().any(|f| &f == "--portable") {
-        std::env::current_dir()
+        // 便携模式与 Python 共用 bcml-data，不再额外嵌套一层 bcml。
+        return std::env::current_dir()
             .expect("Big problems if no cwd")
-            .join("bcml-data")
-    } else if cfg!(windows) {
+            .join("bcml-data");
+    }
+    if cfg!(windows) {
         dirs2::data_local_dir().expect("Big problems if no local data dir")
     } else {
         dirs2::config_dir().expect("Big problems if no config dir")

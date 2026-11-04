@@ -191,6 +191,10 @@ impl<'py, 'set> ModLinker<'py, 'set> {
         if !(exists && is_link && should_be_link) {
             println!("Preparing output folder at {}", output.display());
             if should_be_link {
+                // macOS 的新 Cemu 数据目录可能尚无 graphicPacks，先创建链接的父目录。
+                if let Some(parent) = output.parent() {
+                    fs::create_dir_all(parent).context("Failed to create output parent folder")?;
+                }
                 println!(
                     "Attempting to link output folder at {} to merged folder",
                     output.display()
@@ -202,7 +206,7 @@ impl<'py, 'set> ModLinker<'py, 'set> {
                     // output folder entirely to make way for the new link.
                     remove_dir_all(&output).context("Failed to clear output folder")?;
                 }
-                #[cfg(target_os = "linux")]
+                #[cfg(unix)]
                 std::os::unix::fs::symlink(merged, &output)
                     .context("Failed to symlink output folder")?;
                 #[cfg(target_os = "windows")]

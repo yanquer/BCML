@@ -27,6 +27,7 @@ jobs:
               - 'bcml/assets/**'
             rust_src:
               - 'src/**'
+              - 'bcml/**/*.py'
               - 'bootstrap.sh'
               - 'Cargo.toml'
               - 'Cargo.lock'
@@ -125,3 +126,42 @@ jobs:
         command: build
         args: --release --cargo-extra-args=--locked
         rust-toolchain: ${{ steps.rust.outputs.channel }}
+
+  macos_build:
+    name: macOS native build and runtime checks
+    needs: check_changes
+    if: ${{ needs.check_changes.outputs.rust_src_changed == 'true' || needs.check_changes.outputs.npm_assets_changed == 'true' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.17"
+          python-version: "3.9"
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20.x"
+      - name: Install native archive tool
+        run: brew install sevenzip
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+      - name: Install locked runtime dependencies
+        run: uv sync --locked --no-install-project
+      - run: npm ci --no-audit --no-fund
+        working-directory: bcml/assets
+      - run: npm run build
+        working-directory: bcml/assets
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+      - name: Build bundled help
+        run: uv run --frozen --no-sync mkdocs build -d bcml/assets/help
+      - name: Install native extension
+        run: uv sync --locked
+      - name: Test runtime and build backend
+        run: uv run --frozen --no-sync python -m unittest discover -s tests -v
+      - name: Build macOS wheel
+        run: uv build --wheel
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bcml-macos-wheel
+          path: dist/*.whl

@@ -102,6 +102,9 @@ def main(debug: bool = False):
                 gui = "edgechromium"
             else:
                 util.download_webview2()
+    elif SYSTEM == "Darwin":
+        # 使用系统 WebKit/Cocoa，避免在 macOS 上加载 Linux Qt 后端。
+        gui = "cocoa"
     else:
         gui = "qt"
         os.environ["QTWEBENGINE_DISABLE_SANDBOX"] = "1"
@@ -139,7 +142,13 @@ def main(debug: bool = False):
         height=height,
         min_size=(width if width == 750 else 820, 600),
     )
-    logger = Messager(api.window)
+    if SYSTEM != "Darwin":
+        logger = Messager(api.window)
+    # macOS 的启动和 API 日志直接追加到 LOG，避免空 Messager 在退出时覆盖日志。
+    else:
+        util.log_message(
+            f"GUI starting: backend={gui}, python={sys.version.split()[0]}"
+        )
     api.window.events.closing += stop_it
 
     # messager = Messager(api.window)

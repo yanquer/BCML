@@ -6,6 +6,7 @@ import gc
 import json
 import multiprocessing
 import os
+import plistlib
 import re
 import shutil
 import socket
@@ -536,6 +537,9 @@ def get_data_dir() -> Path:
         data_dir = Path(os.getcwd()) / "bcml-data"
     elif system() == "Windows":
         data_dir = Path(os.path.expandvars("%LOCALAPPDATA%")) / "bcml"
+    elif system() == "Darwin":
+        # 与 Rust dirs2::config_dir() 保持一致，避免读取两套设置。
+        data_dir = Path.home() / "Library" / "Application Support" / "bcml"
     else:
         data_dir = Path.home() / ".config" / "bcml"
     if not data_dir.exists():
@@ -624,7 +628,7 @@ def get_settings(name: str = "") -> Any:
                     settings["store_dir"] = str(get_data_dir())
                 if settings["cemu_dir"] and not settings["no_cemu"]:
                     settings["export_dir"] = str(
-                        Path(settings["cemu_dir"])
+                        get_cemu_data_dir(Path(settings["cemu_dir"]))
                         / "graphicPacks"
                         / "BreathOfTheWild_BCML"
                     )
@@ -643,9 +647,57 @@ def save_settings():
 
 def get_cemu_dir() -> Path:
     cemu_dir = str(get_settings("cemu_dir"))
-    if not cemu_dir or not Path(cemu_dir).is_dir():
+    if not cemu_dir:
         raise FileNotFoundError("The Cemu directory has moved or not been saved yet.")
-    return Path(cemu_dir)
+    data_dir = get_cemu_data_dir(Path(cemu_dir))
+    if not data_dir.is_dir():
+        raise FileNotFoundError(
+            "The Cemu data directory is missing. Start Cemu once first."
+        )
+    return data_dir
+
+
+def get_cemu_executable(cemu_dir: Optional[Path] = None) -> Path:
+    """定位 Cemu 可执行文件，macOS 按应用包清单读取原生程序路径。"""
+    if cemu_dir is None:
+        selected = str(get_settings("cemu_dir"))
+        if not selected:
+            raise FileNotFoundError("The Cemu directory has not been saved yet.")
+        cemu_dir = Path(selected)
+    root = cemu_dir
+    if system() == "Darwin":
+        app = root if root.suffix.lower() == ".app" else root / "Cemu.app"
+        with (app / "Contents" / "Info.plist").open("rb") as stream:
+            name = plistlib.load(stream).get("CFBundleExecutable")
+        if (
+            not isinstance(name, str)
+            or Path(name).name != name
+            or "cemu" not in name.lower()
+        ):
+            raise ValueError(
+                "The selected application does not declare a valid Cemu executable."
+            )
+        executable = app / "Contents" / "MacOS" / name
+        if not executable.is_file():
+            raise FileNotFoundError(f"Cemu's executable is missing: {executable}")
+        if not os.access(executable, os.X_OK):
+            raise PermissionError(f"Cemu's executable cannot be executed: {executable}")
+        return executable
+    for executable in root.glob("*.exe"):
+        if "cemu" in executable.name.lower() and executable.is_file():
+            return executable
+    raise FileNotFoundError(f"A Cemu executable could not be found in {root}")
+
+
+def get_cemu_data_dir(cemu_dir: Path) -> Path:
+    """将 macOS 的应用位置转换为 Cemu 的便携或用户数据目录。"""
+    if system() != "Darwin":
+        return cemu_dir
+    app = cemu_dir if cemu_dir.suffix.lower() == ".app" else cemu_dir / "Cemu.app"
+    portable = app.parent / "portable"
+    if portable.is_dir():
+        return portable
+    return Path.home() / "Library" / "Application Support" / "Cemu"
 
 
 def set_cemu_dir(path: Path):
@@ -1570,7 +1622,15 @@ class Messager:
 
 
 @lru_cache(1)
-def get_7z_path():
+def get_7z_path() -> str:
+    """选择当前平台可执行的归档工具，macOS 不回退到随包附带的 Linux 二进制。"""
+    if system() == "Darwin":
+        executable = shutil.which("7zz") or shutil.which("7z")
+        if executable:
+            return executable
+        raise FileNotFoundError(
+            "7-Zip is required on macOS. Install it with `brew install sevenzip`."
+        )
     if system() == "Windows":
         return str(get_exec_dir() / "helpers" / "7z.exe")
     bundle_path = get_exec_dir() / "helpers" / "7z"
@@ -1583,6 +1643,18 @@ def get_7z_path():
     if get_settings("force_7z"):
         return str(bundle_path)
     return shutil.which("7z") or str(bundle_path)
+
+
+def log_message(message: str) -> None:
+    """向现有日志追加有界诊断，日志写入失败时保留业务操作的原始结果与异常。"""
+    bounded = message[-16384:]
+    timestamp = datetime.now().isoformat(timespec="seconds")
+    try:
+        with LOG.open("a", encoding="utf-8") as log_file:
+            log_file.write(f"{timestamp} {bounded}\n")
+    except OSError as error:
+        # 日志权限或磁盘错误单独显示，不能覆盖首次业务失败。
+        print(f"BCML logging failed: {error!r}\n{bounded}", file=sys.stderr)
 
 
 LOG = get_data_dir() / "bcml.log"

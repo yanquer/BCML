@@ -46,8 +46,11 @@ class FolderInput extends React.Component {
         }
     }
 
+    // 选择文件夹；取消原生对话框时保留当前路径。
     folderPick() {
-        pywebview.api.get_folder().then(folder => this.setState({ value: folder }));
+        pywebview.api.get_folder().then(folder => {
+            if (folder) this.setState({ value: folder });
+        });
     }
 
     handleChange(e) {

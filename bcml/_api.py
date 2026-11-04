@@ -32,8 +32,7 @@ def win_or_lose(func):
         try:
             data = func(*args, **kwargs)
         except Exception as err:  # pylint: disable=broad-except
-            with LOG.open("a") as log_file:
-                log_file.write(f"\n{err}\n")
+            util.log_message(f"{func.__name__} failed:\n{traceback.format_exc(-5)}")
             return {
                 "error": {"short": str(err), "error_text": traceback.format_exc(-5)}
             }
@@ -83,7 +82,8 @@ class Api:
     def sanity_check(self, kwargs=None):
         util.sanity_check()
 
-    def get_folder(self):
+    def get_folder(self) -> Optional[str]:
+        """打开平台文件夹选择器，取消时返回 None。"""
         if SYSTEM == "Windows":
             from tkinter import filedialog
             from tkinter import Tk
@@ -93,9 +93,11 @@ class Api:
             folder = filedialog.askdirectory(parent=root)
             return folder if folder != "" else None
         else:
-            return self.window.create_file_dialog(webview.FOLDER_DIALOG)[0]
+            selected = self.window.create_file_dialog(webview.FOLDER_DIALOG)
+            return selected[0] if selected else None
 
-    def dir_exists(self, params):
+    def dir_exists(self, params: Dict[str, str]) -> bool:
+        """校验用户选择的目录，并识别 macOS 原生 Cemu 应用及数据目录。"""
         if not params["folder"]:
             return False
         path = Path(params["folder"])
@@ -103,6 +105,12 @@ class Api:
         if not real_folder:
             return False
         if params["type"] == "cemu_dir":
+            if SYSTEM == "Darwin":
+                try:
+                    util.get_cemu_executable(path)
+                except FileNotFoundError:
+                    return False
+                return util.get_cemu_data_dir(path).is_dir()
             return len(list(path.glob("?emu*.exe"))) > 0
         if "game_dir" in params["type"]:
             return (path / "Pack" / "Dungeon000.pack").exists()
@@ -135,9 +143,10 @@ class Api:
                 return str(targets[0].parent.parent)
         return params["folder"]
 
-    def parse_cemu_settings(self, params):
+    def parse_cemu_settings(self, params: Dict[str, str]) -> Dict[str, str]:
+        """从平台对应的数据目录解析 Cemu 设置，并区分空结果与读取失败。"""
         try:
-            cemu = Path(params["folder"])
+            cemu = util.get_cemu_data_dir(Path(params["folder"]))
             set_path = cemu / "settings.xml"
             settings: minidom = util.parse_cemu_settings(set_path)
             game_dir: Optional[Path] = None
@@ -156,7 +165,9 @@ class Api:
             except IndexError:
                 pass
             try:
-                mlc_str: str = settings.getElementsByTagName("mlc_path")[0].childNodes[0].data
+                mlc_str: str = (
+                    settings.getElementsByTagName("mlc_path")[0].childNodes[0].data
+                )
                 if SYSTEM == "Linux" and mlc_str[1:3] == ":\\":
                     mlc_path = Path(mlc_str[2:].replace("\\", "/"))
                 else:
@@ -165,6 +176,8 @@ class Api:
                 mlc_path = cemu / "mlc01"
                 if not mlc_path.exists():
                     return {}
+            if SYSTEM == "Darwin" and not mlc_path.is_absolute():
+                mlc_path = cemu / mlc_path
             if not game_dir:
                 game_dir = util.guess_game_dir(mlc_path)
                 if not game_dir:
@@ -178,8 +191,8 @@ class Api:
                 "export_dir": str(cemu / "graphicPacks" / "BreathOfTheWild_BCML"),
             }
         except Exception as err:  # pylint: disable=broad-except
-            print(err)
-            return {}
+            util.log_message(f"Cemu settings parse failed:\n{traceback.format_exc(-5)}")
+            raise RuntimeError("The Cemu settings file could not be read.") from err
 
     def get_settings(self, params=None):
         return util.get_settings()
@@ -504,25 +517,18 @@ class Api:
         self.launch_cemu()
 
     @win_or_lose
-    def launch_cemu(self, params=None):
+    def launch_cemu(self, params: Optional[Dict[str, bool]] = None) -> None:
+        """启动平台对应的 Cemu，macOS 使用应用包中的原生程序并记录进程提交结果。"""
         if not params:
             params = {"run_game": True}
-        cemu = next(
-            iter(
-                {
-                    f
-                    for f in util.get_cemu_dir().glob("*.exe")
-                    if "cemu" in f.name.lower()
-                }
-            )
-        )
-        uking = util.get_game_dir().parent / "code" / "U-King.rpx"
-        try:
-            assert uking.exists()
-        except AssertionError:
-            raise FileNotFoundError("Your BOTW executable could not be found")
+        cemu = util.get_cemu_executable()
+        uking: Optional[Path] = None
+        if params["run_game"]:
+            uking = util.get_game_dir().parent / "code" / "U-King.rpx"
+            if not uking.is_file():
+                raise FileNotFoundError("Your BOTW executable could not be found")
         cemu_args: List[str]
-        if SYSTEM == "Windows":
+        if SYSTEM in {"Windows", "Darwin"}:
             cemu_args = [str(cemu)]
             if params["run_game"]:
                 cemu_args.extend(("-g", str(uking)))
@@ -535,7 +541,11 @@ class Api:
                         "Z:\\" + str(uking).replace("/", "\\"),
                     )
                 )
-        Popen(cemu_args, cwd=str(util.get_cemu_dir()))
+        util.log_message(
+            f"Cemu spawn: executable={cemu}, run_game={params['run_game']}"
+        )
+        process = Popen(cemu_args, cwd=str(util.get_cemu_dir()))
+        util.log_message(f"Cemu process started: pid={process.pid}")
 
     @win_or_lose
     @install.refresher
@@ -815,6 +825,10 @@ class Api:
 
     @win_or_lose
     def update_bcml(self):
+        if SYSTEM == "Darwin":
+            raise RuntimeError(
+                "Update this macOS source checkout, then run `uv sync --locked`."
+            )
         exe = str(util.get_python_exe(False))
         args = [
             "-m",

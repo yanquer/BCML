@@ -14,7 +14,7 @@ dependencies = [
     "cefpython3~=66.1; platform_system == 'Windows'",
     "oead~=1.2.6",
     "packaging~=21.3",
-    "pythonnet~=3.0.1",
+    "pythonnet~=3.0.1; platform_system != 'Darwin'",
     "PyQt5; platform_system == 'Linux'",
     "pyqtwebengine~=5.15.2; platform_system == 'Linux'",
     "pywebview==3.7.2",
@@ -54,3 +54,26 @@ dev = [
 [tool.uv.dependency-groups]
 # uv 开发工具使用 Python 3.8+，发行包继续兼容 Python 3.7。
 dev = { requires-python = ">=3.8" }
+
+[tool.uv]
+# Rust 源码或工具链变化时重建扩展，避免 editable 安装继续使用旧的动态库。
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "Cargo.toml" },
+    { file = "Cargo.lock" },
+    { file = "rust-toolchain.toml" },
+    { file = "_build_backend.py" },
+    { file = "src/**/*.rs" },
+]
+
+[tool.uv.extra-build-dependencies]
+# oead 的旧版子项目尚不兼容 CMake 4，隔离安装构建工具以避免依赖系统版本。
+oead = ["cmake>=3.18,<4"]
+
+[tool.uv.extra-build-variables]
+# SDK 名称由 Xcode 动态解析，避免将某台机器的 SDK 绝对路径写入项目。
+oead = { SDKROOT = "macosx" }
+
+[tool.uv.sources]
+# 官方已合并的 Apple Silicon 构建修复；固定提交，其他平台继续使用 PyPI 版本。
+oead = { git = "https://github.com/zeldamods/oead", rev = "9dfb8c6d7f77ba85cf8393628ac887d8b04862aa", marker = "sys_platform == 'darwin'" }

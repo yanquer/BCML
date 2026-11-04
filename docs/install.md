@@ -4,6 +4,10 @@ There are basically two ways to install mods into BCML: GameBanana one-click or 
 download. To use GameBanana one-click, go to GameBanana in your browser, find a mod you want, and 
 click the BCML 1-Click Install button.
 
+On macOS source installations, use the manual import workflow below; the CLI
+installation does not register the `bcml://` protocol. Install the native archive
+tool with `brew install sevenzip` before importing archives.
+
 To install manually, click the floating action button on the Mods tab of the main BCML window.
 (Though you can also drag-and-drop files onto the BCML window or double-click the mod in Windows).
 This will open up the installation dialog. Click "Browse..." to select the mod(s) you wish to install. 

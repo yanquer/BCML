@@ -44,8 +44,8 @@ changes made by each mod into a single modpack that just works.
 
 ## Prerequisites
 
--   Windows 10+ (7-8 _might_ work but are not officially supported) or basically any modern Linux
-    distribution
+-   Windows 10+ (7-8 _might_ work but are not officially supported), a modern Linux
+    distribution, or macOS using the [source installation workflow](#macos-source-installation)
 -   A legal, unpacked game dump of _The Legend of Zelda: Breath of the Wild_ for Switch
     (version 1.6.0) or Wii U (version 1.5.0)
 -   [The latest x64 Visual C++ redistributable](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads#section-2)
@@ -169,6 +169,43 @@ Manage dependencies in [pyproject.toml](../pyproject.toml) using `uv add` or
 the dependency metadata manually, run `uv lock`. `requirements.txt` and `setup.py`
 remain legacy packaging inputs; keep their runtime requirements consistent with
 `pyproject.toml` if they change. CI uses `--locked` to reject stale lockfiles.
+
+
+### macOS Source Installation
+
+Install the Xcode command line tools and the basic build tools first:
+
+```sh
+xcode-select --install
+brew install uv rustup node sevenzip
+```
+
+From this repository, run:
+
+```sh
+./bootstrap.sh
+uv run --locked bcml
+```
+
+Use this source workflow on macOS so uv installs the pinned official `oead` build
+fix for Apple Silicon. The Rust extension uses the repository's pinned toolchain;
+uv also tracks Rust source changes when deciding whether to rebuild it. The macOS
+window uses Cocoa/WebKit and requires neither Qt nor .NET.
+
+For native Cemu, start Cemu once, then set **Cemu Directory** to the folder containing
+`Cemu.app` (for example `/Applications`), or enter the app bundle path directly.
+BCML reads Cemu data from `~/Library/Application Support/Cemu`; if a sibling
+`portable` directory exists, it uses that instead. Launching Cemu directly does not
+require a game dump; launching a game requires a valid `code/U-King.rpx`.
+
+BCML settings and error logs use `~/Library/Application Support/bcml`. The
+`--portable` option instead uses `bcml-data` under the working directory for both
+Python and Rust. The existing manual mod import workflow supports downloaded BNP,
+ZIP, 7z and RAR archives through the system `7zz` or `7z` executable.
+
+This CLI installation does not register `bcml://` links or create Windows desktop
+and Start Menu shortcuts on macOS. Import downloaded mods manually. The supported
+update workflow is to update the source checkout and run `uv sync --locked`.
 
 ## Usage and Troubleshooting
 

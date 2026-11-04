@@ -35,6 +35,11 @@ exactly what you'll need to do from there.)
 (Optional) Must be the folder which directly contains `Cemu.exe` and `settings.xml`. For
 some Cemu installations, this may be inside a folder named `BIN`.
 
+On macOS, select the folder containing `Cemu.app` (for example `/Applications`) or
+enter the app bundle path directly. Start Cemu once before configuring BCML. Cemu
+settings and graphic packs normally live in `~/Library/Application Support/Cemu`,
+or in a `portable` directory alongside `Cemu.app` for portable installations.
+
 ##### Base Game
 
 _(Required)_ Must be the root folder for the BOTW ROM, excluding the executable or meta.

@@ -100,20 +100,24 @@ def process_arg(arg: str = None):
     )
 
 
-def register_handlers():
+def register_handlers() -> None:
+    """仅在已有系统协议注册实现的平台登记处理器，macOS 保留手动导入。"""
     if system() == "Windows":
         _win_create_handler()
-    else:
+    elif system() == "Linux":
         _linux_create_handler()
+    elif system() == "Darwin":
+        util.log_message(
+            "macOS: bcml:// registration skipped; this CLI installation has no app bundle. Import downloaded mods manually."
+        )
 
 
 def _linux_create_handler():
-    schema_file = (
-        Path.home() / ".local" / "share" / "applications" / "bcml.desktop"
-    )
+    schema_file = Path.home() / ".local" / "share" / "applications" / "bcml.desktop"
     if schema_file.exists():
         return
     import textwrap
+
     desktop = f"""
     [Desktop Entry]
     Type=Application

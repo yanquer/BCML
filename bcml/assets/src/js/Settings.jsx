@@ -118,11 +118,15 @@ class Settings extends React.Component {
                         type: "cemu_dir"
                     })
                 ) {
-                    this.setState({
-                        ...(await pywebview.api.parse_cemu_settings({
-                            folder: this.state.cemu_dir
-                        }))
-                    });
+                    try {
+                        this.setState({
+                            ...(await pywebview.api.parse_cemu_settings({
+                                folder: this.state.cemu_dir
+                            }))
+                        });
+                    } catch (error) {
+                        this.props.onError(error);
+                    }
                 }
             }
             if (
@@ -193,7 +197,7 @@ class Settings extends React.Component {
                                 value={this.state.cemu_dir}
                                 disabled={!this.state.wiiu || this.state.no_cemu}
                                 onChange={this.handleChange}
-                                placeholder='Tip: folder should contain "Cemu.exe"'
+                                placeholder='Folder containing Cemu.exe or Cemu.app'
                                 isValid={
                                     this.state.cemu_dir != "" || this.state.no_cemu
                                 }
@@ -203,8 +207,9 @@ class Settings extends React.Component {
                                             <>
                                                 (Optional) The directory where Cemu is
                                                 installed. Note that this <em>must</em>{" "}
-                                                be the folder that directly contains
-                                                "Cemu.exe" and "settings.xml"
+                                                be the folder containing Cemu.exe
+                                                on Windows or Cemu.app on macOS.
+                                                Start Cemu once before selecting it.
                                             </>
                                         ) : (
                                             "Not applicable for Switch mode"
@@ -454,7 +459,7 @@ class Settings extends React.Component {
                                 placeholder="Optional"
                             />
                         </Form.Group>
-                        {!window.navigator.userAgent.includes("inux") && (
+                        {window.navigator.userAgent.includes("Windows") && (
                             <>
                                 <h5>Create BCML Shortcuts</h5>
                                 <Button

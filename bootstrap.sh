@@ -23,6 +23,12 @@ if ! command -v rustup >/dev/null 2>&1; then
     exit 1
 fi
 
+# macOS 不能使用仓库内的 Linux ELF 归档程序。
+if [ "$(uname -s)" = "Darwin" ] && ! command -v 7zz >/dev/null 2>&1 && ! command -v 7z >/dev/null 2>&1; then
+    echo "7-Zip is required on macOS: brew install sevenzip" >&2
+    exit 1
+fi
+
 echo "Installing locked Python dependencies with uv..."
 # 先安装依赖，生成资源后再安装包含 Rust 扩展的项目。
 uv sync --locked --no-install-project

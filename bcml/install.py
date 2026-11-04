@@ -10,6 +10,7 @@ import os
 import re
 import shutil
 import stat
+import traceback
 import subprocess
 from functools import partial
 from multiprocessing import Pool
@@ -17,6 +18,7 @@ from pathlib import Path
 from platform import system
 from shutil import rmtree, copyfile
 from tempfile import TemporaryDirectory, mkdtemp
+from time import monotonic
 from typing import List, Union, Callable, Dict, Any, Optional
 from xml.dom import minidom
 
@@ -557,7 +559,7 @@ def uninstall_mod(mod: BcmlMod, wait_merge: bool = False):
     has_patches = (mod.path / "patches").exists()
     try:
         shutil.rmtree(str(mod.path), onerror=force_del)
-    except (OSError, PermissionError, WindowsError) as err:
+    except (OSError, PermissionError) as err:
         raise RuntimeError(
             f"The folder for {mod.name} could not be removed. "
             "You may need to delete it manually and remerge, or "
@@ -739,22 +741,21 @@ def disable_bcml_gfx():
         )
 
 
-def link_master_mod(output: Path = None):
-    util.create_bcml_graphicpack_if_needed()
+def link_master_mod(output: Optional[Path] = None) -> None:
+    """调用原生扩展导出合并结果，记录开始、完成或保留原始原因的失败诊断。"""
+    started = monotonic()
+    util.log_message(
+        f"Mod export starting: output={output if output is not None else 'configured target'}"
+    )
     try:
+        util.create_bcml_graphicpack_if_needed()
         rsext.manager.link_master_mod(str(output) if output else None)
-    except (OSError, RuntimeError) as err:
-        if err is OSError or (err is RuntimeError and "junction" in str(err)):
-            raise RuntimeError(
-                "BCML failed to create the link to the merged mod. This is "
-                "probably because Cemu is on an external USB, eSATA, or "
-                "network drive. You can fix this in one of two ways:\n"
-                "- Make sure Cemu is on an internal drive\n"
-                "- Turn on the 'no hard links' option in BCML's settings "
-                "(but be aware that mod merging will take much longer)"
-            ) from err
-        else:
-            raise
+    except (OSError, RuntimeError):
+        util.log_message(
+            f"Mod export failed after {monotonic() - started:.2f}s:\n{traceback.format_exc(-5)}"
+        )
+        raise
+    util.log_message(f"Mod export completed in {monotonic() - started:.2f}s")
 
 
 def export(output: Path, standalone: bool = False):
